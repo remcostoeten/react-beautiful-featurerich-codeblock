@@ -1,523 +1,396 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/code-block/button";
-import CodeBlock from "@/components/code-block/code-block";
-import { Github } from "lucide-react";
-import { useState } from "react";
-export default function CodeBlockDemoPage() {
-  const [activeTab, setActiveTab] = useState('typescript')
-  const [searchDemo, setSearchDemo] = useState({ query: '', results: [] })
+import { Button } from '@/components/code-block/button'
+import { CodeBlock } from '@/components/code-block/code-block'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/docs/accordion"
+import { CodeBlockCreator } from '@/components/docs/block-creator'
+import { Code, Github } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
-  const codeExamples = {
-    typescript: `
-import { useState, useEffect } from 'react';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
+const codeExamples = {
+  javascript: `
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+console.log(fibonacci(10));
+  `,
+  python: `
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('https://api.example.com/users');
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        const data: User[] = await response.json();
-        setUsers(data);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
-  return (
-    <ul>
-      {users.map((user) => (
-        <li key={user.id}>
-          <strong>{user.name}</strong> ({user.email})
-        </li>
-      ))}
-    </ul>
-  );
-};
-
-export default UserList;
-    `,
-    python: `
-import asyncio
-import aiohttp
-from typing import List, Dict
-
-class WeatherAPI:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.base_url = "https://api.openweathermap.org/data/2.5/weather"
-
-    async def get_weather(self, city: str) -> Dict:
-        params = {
-            "q": city,
-            "appid": self.api_key,
-            "units": "metric"
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.base_url, params=params) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return {
-                        "city": data["name"],
-                        "temperature": data["main"]["temp"],
-                        "description": data["weather"][0]["description"]
-                    }
-                else:
-                    raise Exception(f"Error fetching weather for {city}")
-
-async def get_multiple_weather(api_key: str, cities: List[str]) -> List[Dict]:
-    api = WeatherAPI(api_key)
-    tasks = [api.get_weather(city) for city in cities]
-    return await asyncio.gather(*tasks)
-
-async def main():
-    api_key = "your_api_key_here"
-    cities = ["London", "New York", "Tokyo", "Sydney", "Paris"]
+print(quick_sort([3, 6, 8, 10, 1, 2, 1]))
+  `,
+  rust: `
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
     
-    try:
-        weather_data = await get_multiple_weather(api_key, cities)
-        for data in weather_data:
-            print(f"{data['city']}: {data['temperature']}°C, {data['description']}")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-    `,
-    rust: `
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use tokio::sync::mpsc;
-use tokio::time::{self, Duration};
-
-#[derive(Debug, Clone)]
-struct Task {
-    id: u64,
-    description: String,
-    completed: bool,
+    let doubled: Vec<i32> = numbers
+        .iter()
+        .map(|&x| x * 2)
+        .collect();
+    
+    println!("Doubled numbers: {:?}", doubled);
 }
-
-#[derive(Debug)]
-enum Message {
-    AddTask(Task),
-    CompleteTask(u64),
-    GetTasks,
-}
-
-struct TaskManager {
-    tasks: Arc<Mutex<HashMap<u64, Task>>>,
-}
-
-impl TaskManager {
-    fn new() -> Self {
-        TaskManager {
-            tasks: Arc::new(Mutex::new(HashMap::new())),
-        }
-    }
-
-    async fn add_task(&self, task: Task) {
-        let mut tasks = self.tasks.lock().unwrap();
-        tasks.insert(task.id, task);
-    }
-
-    async fn complete_task(&self, id: u64) -> bool {
-        let mut tasks = self.tasks.lock().unwrap();
-        if let Some(task) = tasks.get_mut(&id) {
-            task.completed = true;
-            true
-        } else {
-            false
-        }
-    }
-
-    async fn get_tasks(&self) -> Vec<Task> {
-        let tasks = self.tasks.lock().unwrap();
-        tasks.values().cloned().collect()
-    }
-}
-
-#[tokio::main]
-async fn main() {
-    let task_manager = Arc::new(TaskManager::new());
-    let (tx, mut rx) = mpsc::channel(32);
-
-    // Spawn a task to handle incoming messages
-    let tm = task_manager.clone();
-    tokio::spawn(async move {
-        while let Some(msg) = rx.recv().await {
-            match msg {
-                Message::AddTask(task) => tm.add_task(task).await,
-                Message::CompleteTask(id) => {
-                    let result = tm.complete_task(id).await;
-                    println!("Task {} completed: {}", id, result);
-                }
-                Message::GetTasks => {
-                    let tasks = tm.get_tasks().await;
-                    println!("Current tasks: {:?}", tasks);
-                }
-            }
-        }
-    });
-
-    // Simulate adding tasks
-    for i in 1..=5 {
-        let task = Task {
-            id: i,
-            description: format!("Task {}", i),
-            completed: false,
-        };
-        tx.send(Message::AddTask(task)).await.unwrap();
-    }
-
-    // Simulate completing tasks
-    time::sleep(Duration::from_secs(1)).await;
-    tx.send(Message::CompleteTask(2)).await.unwrap();
-    tx.send(Message::CompleteTask(4)).await.unwrap();
-
-    // Get and display all tasks
-    time::sleep(Duration::from_secs(1)).await;
-    tx.send(Message::GetTasks).await.unwrap();
-
-    // Wait for a moment to allow all tasks to complete
-    time::sleep(Duration::from_secs(2)).await;
-}
-    `,
-    sql: `
--- Create tables
-CREATE TABLE customers (
-    customer_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE products (
-    product_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    stock_quantity INT NOT NULL
-);
-
-CREATE TABLE orders (
-    order_id SERIAL PRIMARY KEY,
-    customer_id INT REFERENCES customers(customer_id),
-    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_amount DECIMAL(10, 2) NOT NULL
-);
-
-CREATE TABLE order_items (
-    order_item_id SERIAL PRIMARY KEY,
-    order_id INT REFERENCES orders(order_id),
-    product_id INT REFERENCES products(product_id),
-    quantity INT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL
-);
-
--- Insert sample data
-INSERT INTO customers (first_name, last_name, email) VALUES
-('John', 'Doe', 'john@example.com'),
-('Jane', 'Smith', 'jane@example.com'),
-('Bob', 'Johnson', 'bob@example.com');
-
-INSERT INTO products (name, description, price, stock_quantity) VALUES
-('Laptop', 'High-performance laptop', 999.99, 50),
-('Smartphone', 'Latest model smartphone', 699.99, 100),
-('Headphones', 'Noise-cancelling headphones', 199.99, 200);
-
-INSERT INTO orders (customer_id, total_amount) VALUES
-(1, 1199.98),
-(2, 699.99),
-(3, 1899.97);
-
-INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
-(1, 1, 1, 999.99),
-(1, 3, 1, 199.99),
-(2, 2, 1, 699.99),
-(3, 1, 1, 999.99),
-(3, 2, 1, 699.99),
-(3, 3, 1, 199.99);
-
--- Complex query to get order summary
+  `,
+  sql: `
 SELECT 
-    o.order_id,
-    c.first_name || ' ' || c.last_name AS customer_name,
-    o.order_date,
-    SUM(oi.quantity) AS total_items,
-    o.total_amount,
-    STRING_AGG(p.name, ', ') AS products
+    customers.name,
+    COUNT(orders.id) as order_count,
+    SUM(orders.total) as total_spent
 FROM 
-    orders o
-    JOIN customers c ON o.customer_id = c.customer_id
-    JOIN order_items oi ON o.order_id = oi.order_id
-    JOIN products p ON oi.product_id = p.product_id
+    customers
+LEFT JOIN 
+    orders ON customers.id = orders.customer_id
 GROUP BY 
-    o.order_id, c.customer_id
+    customers.id
+HAVING 
+    COUNT(orders.id) > 5
 ORDER BY 
-    o.order_date DESC;
+    total_spent DESC
+LIMIT 10;
+  `
+}
 
--- Query to get product sales ranking
-SELECT 
-    p.name,
-    SUM(oi.quantity) AS total_sold,
-    SUM(oi.quantity * oi.price) AS total_revenue,
-    RANK() OVER (ORDER BY SUM(oi.quantity * oi.price) DESC) AS sales_rank
-FROM 
-    products p
-    LEFT JOIN order_items oi ON p.product_id = oi.product_id
-GROUP BY 
-    p.product_id
-ORDER BY 
-    total_revenue DESC;
-    `
+export default function DocsLandingPage() {
+  const [activeLanguage, setActiveLanguage] = useState('javascript')
+  const [searchDemoQuery, setSearchDemoQuery] = useState("n <= 1")
+  const [searchDemoResults, setSearchDemoResults] = useState<number[]>([])
+
+  const handleLineClick = (lineNumber: number) => {
+    // You can implement any logic here if needed
+    console.log(`Line ${lineNumber} clicked`);
   }
 
-  const handleSearch = (query: string, results: number[]) => {
-    setSearchDemo({ query, results })
+  useEffect(() => {
+    // Find the line number containing "n <= 1"
+    const lines = codeExamples.javascript.split('\n');
+    const lineNumber = lines.findIndex(line => line.includes("n <= 1")) + 1;
+    setSearchDemoResults(lineNumber > 0 ? [lineNumber] : []);
+  }, [])
+
+  const handleSearchDemo = (query: string, results: number[]) => {
+    setSearchDemoQuery(query)
+    setSearchDemoResults(results)
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="border-b border-[#333333]">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold">BeautifulCodeBlock</h1>
-              <p className="mt-2 text-lg text-zinc-400">
-                A modern, feature-rich code block component with syntax highlighting and interactive features
-              </p>
-              <div className="flex items-center gap-2 mt-4">
-                <a
-                  href="https://github.com/yourusername/beautiful-code-block"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
-                >
-                  by @yourusername
-                </a>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() =>
-                window.open(
-                  "https://github.com/yourusername/beautiful-code-block",
-                  "_blank",
-                )
-              }
-            >
-              <Github size={18} />
-              View on GitHub
-            </Button>
-          </div>
+      <header className="border-b border-[#333] py-6">
+        <div className="max-w-6xl mx-auto px-6">
+          <h1 className="text-3xl font-bold">CodeBlock Documentation</h1>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-16">
-        <div className="space-y-16">
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Installation</h2>
-            <CodeBlock
-              code="npm install @yourusername/beautiful-code-block"
-              fileName="terminal"
-              language="bash"
-              badges={["npm"]}
-            />
-          </section>
+      <main className="max-w-6xl mx-auto px-6 py-12 space-y-16">
+        <section className="text-center">
+          <h2 className="text-4xl font-bold mb-4">A Beautiful Code Block Component for React</h2>
+          <p className="text-xl text-gray-400 mb-6 max-w-2xl mx-auto">
+            Enhance your React applications with a feature-rich, customizable code display component.
+            Created by <a href="https://github.com/remcostoeten" className="text-white hover:underline">remcostoeten</a>.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Button asChild>
+              <a href="https://github.com/remcostoeten/beautifull-code-block" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <Github className="mr-2 h-5 w-5" />
+                View on GitHub
+              </a>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="https://www.npmjs.com/package/beautifull-code-block" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <Code className="mr-2 h-5 w-5" />
+                View on npm
+              </a>
+            </Button>
+          </div>
+        </section>
 
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Basic Usage</h2>
-            <CodeBlock
-              code={`import { CodeBlock } from '@yourusername/beautiful-code-block'
+        <section>
+          <h3 className="text-2xl font-semibold mb-6">Installation</h3>
+          <p className="mb-4 text-gray-400">
+            You can install the CodeBlock component using the following bash script:
+          </p>
+          <CodeBlock
+            code={`#!/bin/bash
 
-export default function Page() {
+echo "🚀 Installing beautiful-code-block component..."
+
+# Clone repository sparsely (only what we need)
+git clone --depth 1 --filter=blob:none --sparse https://github.com/remcostoeten/beautifull-code-block
+
+# Enter directory
+cd beautifull-code-block
+
+# Set sparse-checkout to only get the code-block component
+git sparse-checkout set src/components/code-block
+
+# Copy to components folder (creates it if it doesn't exist)
+mkdir -p ../components
+cp -r src/components/code-block ../components/
+
+# Clean up: remove cloned repo
+cd ..
+rm -rf beautifull-code-block
+
+# Install all required dependencies
+echo "📦 Installing dependencies..."
+
+npm install \\
+  framer-motion \\
+  lucide-react \\
+  react-syntax-highlighter \\
+  @radix-ui/react-slot \\
+  class-variance-authority \\
+  clsx \\
+  tailwind-merge \\
+  @radix-ui/react-dropdown-menu \\
+  @radix-ui/react-toast
+
+echo "
+✅ Installation complete! 
+
+📁 Component files installed in: ./components/code-block
+📦 Dependencies installed:
+   • framer-motion
+   • lucide-react
+   • react-syntax-highlighter
+   • @radix-ui/react-slot
+   • class-variance-authority
+   • clsx
+   • tailwind-merge
+   • @radix-ui/react-dropdown-menu
+   • @radix-ui/react-toast
+
+🔍 Make sure you have these peer dependencies in your project:
+   • react
+   • react-dom
+   • tailwindcss
+
+🎨 Component is ready to use!"
+`}
+            language="bash"
+            showLineNumbers
+          />
+          <p className="mt-4 text-gray-400">
+            Alternatively, you can use this one-liner command in your terminal:
+          </p>
+          <CodeBlock
+            code={`git clone --depth 1 --filter=blob:none --sparse https://github.com/remcostoeten/beautifull-code-block && cd beautifull-code-block && git sparse-checkout set src/components/code-block && mkdir -p ../components && cp -r src/components/code-block ../components/ && cd .. && rm -rf beautifull-code-block && npm install framer-motion lucide-react react-syntax-highlighter @radix-ui/react-slot class-variance-authority clsx tailwind-merge @radix-ui/react-dropdown-menu @radix-ui/react-toast && echo "✅ Code block component installed!"`}
+            language="bash"
+            showLineNumbers
+          />
+        </section>
+
+        <section>
+          <h3 className="text-2xl font-semibold mb-6">Language Showcase</h3>
+          <div className="mb-4 flex space-x-2">
+            {Object.keys(codeExamples).map((lang) => (
+              <Button
+                key={lang}
+                variant={activeLanguage === lang ? "default" : "outline"}
+                onClick={() => setActiveLanguage(lang)}
+              >
+                {lang}
+              </Button>
+            ))}
+          </div>
+          <CodeBlock
+            code={codeExamples[activeLanguage]}
+            language={activeLanguage}
+            showLineNumbers
+            enableLineHighlight
+          />
+        </section>
+
+        <section>
+          <h3 className="text-2xl font-semibold mb-6">Feature Showcase</h3>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="line-numbers">
+              <AccordionTrigger>Line Numbers</AccordionTrigger>
+              <AccordionContent>
+                <CodeBlock
+                  code={codeExamples.javascript}
+                  language="javascript"
+                  showLineNumbers={true}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="line-highlight">
+              <AccordionTrigger>Line Highlight</AccordionTrigger>
+              <AccordionContent>
+                <p className="mb-4 text-sm text-gray-400">Click on a line to highlight it. Click again to remove the highlight.</p>
+                <CodeBlock
+                  code={codeExamples.javascript}
+                  language="javascript"
+                  showLineNumbers={true}
+                  enableLineHighlight={true}
+                  onLineClick={handleLineClick}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="search">
+              <AccordionTrigger>Search Functionality</AccordionTrigger>
+              <AccordionContent>
+                <p className="mb-4 text-sm text-gray-400">
+                  This demo shows the search functionality in action. The search box is pre-filled with &quot;n &lt;= 1&quot; and the matching line is highlighted.
+                </p>
+                <CodeBlock
+                  code={codeExamples.javascript}
+                  language="javascript"
+                  showLineNumbers
+                  enableLineHighlight
+                  onSearch={handleSearchDemo}
+                  initialSearchQuery={searchDemoQuery}
+                  initialSearchResults={searchDemoResults}
+                />
+                <div className="mt-4 text-sm text-gray-400">
+                  Search query: <span className="text-white">{searchDemoQuery}</span>
+                  <br />
+                  Matching lines: <span className="text-white">{searchDemoResults.join(', ')}</span>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="file-name">
+              <AccordionTrigger>File Name Display</AccordionTrigger>
+              <AccordionContent>
+                <CodeBlock
+                  code={codeExamples.javascript}
+                  language="javascript"
+                  fileName="example.js"
+                  showLineNumbers
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="badges">
+              <AccordionTrigger>Badges</AccordionTrigger>
+              <AccordionContent>
+                <CodeBlock
+                  code={codeExamples.javascript}
+                  language="javascript"
+                  badges={['Example', 'JavaScript']}
+                  showLineNumbers
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </section>
+
+        <section>
+          <h3 className="text-2xl font-semibold mb-6">Create Your Own</h3>
+          <CodeBlockCreator />
+        </section>
+
+        <section>
+          <h3 className="text-2xl font-semibold mb-6">API Reference</h3>
+          <p className="mb-4 text-gray-400">
+            The CodeBlock component accepts the following props to customize its appearance and behavior:
+          </p>
+          <CodeBlock
+            code={`
+type CodeBlockProps = {
+  code: string;                // The code to be displayed
+  language: string;            // The programming language for syntax highlighting
+  fileName?: string;           // Optional file name to display
+  badges?: string[];           // Optional array of badge strings to display
+  showLineNumbers?: boolean;   // Whether to show line numbers (default: true)
+  enableLineHighlight?: boolean; // Allow clicking to highlight lines (default: false)
+  showMetaInfo?: boolean;      // Show metadata like line count (default: true)
+  maxHeight?: string;          // Maximum height of the code block (default: '400px')
+  onCopy?: (code: string) => void; // Callback when code is copied
+  onLineClick?: (lineNumber: number) => void; // Callback when a line is clicked
+  onSearch?: (query: string, results: number[]) => void; // Callback for search
+  badgeVariant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'custom';
+  badgeColor?: string;         // Custom color for badges when badgeVariant is 'custom'
+  fileNameColor?: string;      // Custom color for the file name
+  initialSearchQuery?: string; // Initial search query
+  initialSearchResults?: number[]; // Initial search results (line numbers)
+}
+
+// Example usage:
+<CodeBlock
+  code="console.log('Hello, world!');"
+  language="javascript"
+  fileName="example.js"
+  badges={['Example', 'JavaScript']}
+  showLineNumbers={true}
+  enableLineHighlight={true}
+  onCopy={(code) => console.log('Copied:', code)}
+  onLineClick={(lineNumber) => console.log('Clicked line:', lineNumber)}
+  onSearch={(query, results) => console.log('Search:', query, 'Results:', results)}
+  badgeVariant="primary"
+/>
+            `}
+            language="typescript"
+            fileName="CodeBlock.tsx"
+            showLineNumbers
+          />
+          <div className="mt-6 space-y-4">
+            <h4 className="text-xl font-semibold">Key Features Explained:</h4>
+            <ul className="list-disc list-inside space-y-2 text-gray-400">
+              <li><strong>Syntax Highlighting:</strong> Automatically detects and highlights syntax based on the specified language.</li>
+              <li><strong>Line Numbers:</strong> Optionally display line numbers for easy reference.</li>
+              <li><strong>Line Highlighting:</strong> Enable interactive line highlighting by clicking on individual lines.</li>
+              <li><strong>File Name Display:</strong> Show a file name at the top of the code block for context.</li>
+              <li><strong>Badges:</strong> Add custom badges to categorize or tag your code snippets.</li>
+              <li><strong>Search Functionality:</strong> Built-in search with highlighting of matching lines.</li>
+              <li><strong>Copy to Clipboard:</strong> One-click copy functionality with visual feedback.</li>
+              <li><strong>Customizable Appearance:</strong> Adjust colors, max height, and other visual aspects to fit your design.</li>
+            </ul>
+          </div>
+          <div className="mt-6">
+            <h4 className="text-xl font-semibold mb-2">Implementation Example:</h4>
+            <CodeBlock
+              code={`
+import { CodeBlock } from '@/components/code-block/code-block';
+
+function MyComponent() {
+  const handleCopy = (code: string) => {
+    console.log('Code copied:', code);
+  };
+
+  const handleLineClick = (lineNumber: number) => {
+    console.log('Line clicked:', lineNumber);
+  };
+
   return (
     <CodeBlock
-      code={code}
-      fileName="example.ts"
-      language="typescript"
-      badges={['npm']}
-      showLineNumbers
-      enableLineHighlight
+      code="function greet(name) {\n  console.log(\`Hello, \${name}!\`);\n}\n\ngreet('World');"
+      language="javascript"
+      fileName="greeting.js"
+      badges={['Function', 'Example']}
+      showLineNumbers={true}
+      enableLineHighlight={true}
+      onCopy={handleCopy}
+      onLineClick={handleLineClick}
+      badgeVariant="primary"
     />
-  )
-}`}
-              fileName="page.tsx"
+  );
+}
+              `}
               language="typescript"
-              badges={["example"]}
+              fileName="MyComponent.tsx"
               showLineNumbers
               enableLineHighlight
             />
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Interactive Examples</h2>
-            <div className="flex space-x-2 mb-4">
-              {Object.keys(codeExamples).map((lang) => (
-                <Button
-                  key={lang}
-                  variant={activeTab === lang ? "default" : "outline"}
-                  onClick={() => setActiveTab(lang)}
-                >
-                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                </Button>
-              ))}
-            </div>
-            <CodeBlock
-              code={codeExamples[activeTab]}
-              fileName={`example.${activeTab}`}
-              language={activeTab}
-              badges={["interactive"]}
-              showLineNumbers
-              enableLineHighlight
-              showMetaInfo
-              onSearch={handleSearch}
-            />
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Search Functionality Demo</h2>
-            <div className="bg-[#111111] p-4 rounded-lg">
-              <h3 className="text-lg font-medium mb-2">Search Results</h3>
-              {searchDemo.query ? (
-                <div>
-                  <p>Query: "{searchDemo.query}"</p>
-                  <p>Results: {searchDemo.results.length} matches</p>
-                  <p>Matching lines: {searchDemo.results.join(', ')}</p>
-                </div>
-              ) : (
-                <p>Use the search feature in the code block above to see results here.</p>
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  title: "Syntax Highlighting",
-                  description: "Support for 180+ programming languages with customizable themes.",
-                },
-                {
-                  title: "Line Highlighting",
-                  description: "Click to highlight specific lines of code for emphasis.",
-                },
-                {
-                  title: "Search Functionality",
-                  description: "Built-in search with result navigation and highlighting.",
-                },
-                {
-                  title: "Copy to Clipboard",
-                  description: "One-click code copying with visual feedback.",
-                },
-                {
-                  title: "Collapsible Interface",
-                  description: "Toggle code visibility for a cleaner presentation.",
-                },
-                {
-                  title: "Keyboard Shortcuts",
-                  description: "Efficient navigation and interaction using keyboard commands.",
-                },
-                {
-                  title: "Customizable Appearance",
-                  description: "Adjust colors, fonts, and layout to match your design.",
-                },
-                {
-                  
-                  title: "Responsive Design",
-                  description: "Adapts seamlessly to different screen sizes and devices.",
-                },
-                {
-                  title: "Accessibility Features",
-                  description: "Designed with keyboard navigation and screen readers in mind.",
-                },
-              ].map((feature, index) => (
-                <div
-                  key={index}
-                  className="p-6 rounded-lg border border-[#333333] bg-[#111111]"
-                >
-                  <h3 className="font-medium text-zinc-200 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-zinc-400">
-                    {feature.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">Configuration Options</h2>
-            <CodeBlock
-              code={`interface CodeBlockProps {
-  code: string;
-  fileName: string;
-  language: string;
-  badges?: string[];
-  showLineNumbers?: boolean;
-  enableLineHighlight?: boolean;
-  showMetaInfo?: boolean;
-  maxHeight?: string;
-  className?: string;
-  onCopy?: (code: string) => void;
-  onLineClick?: (lineNumber: number) => void;
-  onSearch?: (query: string, results: number[]) => void;
-}`}
-              fileName="CodeBlockProps.ts"
-              language="typescript"
-              badges={["props"]}
-              showLineNumbers
-            />
-          </section>
-        </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t border-[#333333] mt-24">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-zinc-400">
-              Built with ❤️ by{" "}
-              <a
-                href="https://github.com/yourusername"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-zinc-300 hover:text-white transition-colors"
-              >
-                @yourusername
-              </a>
-            </p>
-            <a
-              href="https://github.com/yourusername/beautiful-code-block"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-zinc-400 hover:text-white transition-colors"
-            >
-              GitHub Repository
-            </a>
-          </div>
+      <footer className="border-t border-[#333] py-6 text-center text-gray-400">
+        <div className="max-w-6xl mx-auto px-6">
+          <p>Created by <a href="https://github.com/remcostoeten" className="text-white hover:underline">Remco Stoeten</a>. Licensed under MIT.</p>
         </div>
       </footer>
     </div>

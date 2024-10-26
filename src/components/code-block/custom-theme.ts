@@ -1,4 +1,10 @@
-export const customTheme = {
+import { CSSProperties } from 'react';
+
+type CustomTheme = {
+  [key: string]: CSSProperties;
+};
+
+export const customTheme: CustomTheme = {
   'code[class*="language-"]': {
     color: '#f1f5f9',
     background: 'none',
@@ -26,158 +32,114 @@ export const customTheme = {
     fontSize: '14px',
     tabSize: 2,
     hyphens: 'none',
-    margin: 0,
-    padding: 0,
+    padding: '1em',
+    margin: '0.5em 0',
     overflow: 'auto',
   },
   comment: {
     color: '#636e7b',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+  },
+  'block-comment': {
+    color: '#636e7b',
+    fontStyle: 'italic',
   },
   prolog: {
-    color: '#636e7b'
+    color: '#636e7b',
   },
   doctype: {
-    color: '#636e7b'
+    color: '#636e7b',
   },
   cdata: {
-    color: '#636e7b'
+    color: '#636e7b',
   },
   punctuation: {
-    color: '#94a3b8'
-  },
-  '.namespace': {
-    opacity: 0.7
-  },
-  property: {
-    color: '#f472b6'
-  },
-  keyword: {
-    color: '#f472b6'
+    color: '#94a3b8',
   },
   tag: {
-    color: '#f472b6'
-  },
-  'class-name': {
-    color: '#93c5fd'
-  },
-  boolean: {
-    color: '#c084fc'
-  },
-  constant: {
-    color: '#c084fc'
-  },
-  symbol: {
-    color: '#f472b6'
-  },
-  deleted: {
-    color: '#ef4444'
-  },
-  number: {
-    color: '#c084fc'
-  },
-  selector: {
-    color: '#a5b4fc'
+    color: '#f472b6',
   },
   'attr-name': {
-    color: '#f472b6'
-  },
-  string: {
-    color: '#a5b4fc'
-  },
-  char: {
-    color: '#a5b4fc'
-  },
-  builtin: {
-    color: '#93c5fd'
-  },
-  inserted: {
-    color: '#34d399'
-  },
-  variable: {
-    color: '#f1f5f9'
-  },
-  operator: {
-    color: '#94a3b8'
-  },
-  entity: {
     color: '#f472b6',
-    cursor: 'help'
   },
-  url: {
-    color: '#94a3b8'
+  namespace: {
+    color: '#f472b6',
   },
-  '.language-css .token.string': {
-    color: '#a5b4fc'
+  deleted: {
+    color: '#ef4444',
   },
-  '.style .token.string': {
-    color: '#a5b4fc'
+  'function-name': {
+    color: '#60a5fa',
   },
-  atrule: {
-    color: '#f472b6'
+  boolean: {
+    color: '#c084fc',
   },
-  'attr-value': {
-    color: '#a5b4fc'
+  number: {
+    color: '#c084fc',
   },
   function: {
-    color: '#60a5fa'
+    color: '#60a5fa',
   },
-  'regex': {
-    color: '#f472b6'
+  property: {
+    color: '#f472b6',
+  },
+  'class-name': {
+    color: '#93c5fd',
+  },
+  constant: {
+    color: '#c084fc',
+  },
+  symbol: {
+    color: '#f472b6',
+  },
+  selector: {
+    color: '#a5b4fc',
   },
   important: {
     color: '#f472b6',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+  },
+  atrule: {
+    color: '#f472b6',
+  },
+  keyword: {
+    color: '#f472b6',
+  },
+  builtin: {
+    color: '#93c5fd',
+  },
+  string: {
+    color: '#a5b4fc',
+  },
+  char: {
+    color: '#a5b4fc',
+  },
+  'attr-value': {
+    color: '#a5b4fc',
+  },
+  regex: {
+    color: '#f472b6',
+  },
+  variable: {
+    color: '#f1f5f9',
+  },
+  operator: {
+    color: '#94a3b8',
+  },
+  entity: {
+    color: '#f472b6',
+    cursor: 'help',
+  },
+  url: {
+    color: '#94a3b8',
   },
   bold: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   italic: {
-    fontStyle: 'italic'
+    fontStyle: 'italic',
   },
-  'class-name': {
-    color: '#93c5fd'
+  inserted: {
+    color: '#34d399',
   },
-  parameter: {
-    color: '#f1f5f9'
-  },
-  interpolation: {
-    color: '#f1f5f9'
-  },
-  'punctuation.interpolation-punctuation': {
-    color: '#f472b6'
-  },
-  'maybe-class-name': {
-    color: '#93c5fd'
-  },
-  imports: {
-    color: '#93c5fd'
-  },
-  exports: {
-    color: '#93c5fd'
-  },
-  'method-definition': {
-    color: '#f472b6'
-  },
-  decorator: {
-    color: '#f472b6'
-  },
-  'method.parameter': {
-    color: '#f1f5f9'
-  },
-  'method-variable': {
-    color: '#f1f5f9'
-  },
-  'template-string': {
-    color: '#a5b4fc'
-  },
-  'dom': {
-    color: '#93c5fd'
-  },
-  console: {
-    color: '#94a3b8'
-  },
-  'console.function': {
-    color: '#60a5fa'
-  }
 }

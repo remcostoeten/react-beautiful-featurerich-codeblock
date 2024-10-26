@@ -1,42 +1,28 @@
 'use client'
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  CheckCircle2,
-  ChevronDown,
-  Copy,
-  Search,
-  X,
-} from "lucide-react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
-import PrismTheme, { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { ANIMATION_VARIANTS, COPY_VARIANTS, TOAST_VARIANTS } from "./animations";
-import { Button } from "./button";
-import { cn } from "./cn";
-import { customTheme } from "./custom-theme";
-import * as Icons from "./icons";
-
-export interface CodeBlockProps {
-  code: string
-  fileName: string
-  language: string 
-  badges?: string[]
-  showLineNumbers?: boolean
-  enableLineHighlight?: boolean
-  showMetaInfo?: boolean
-  maxHeight?: string
-  className?: string
-  onCopy?: (code: string) => void
-  onLineClick?: (lineNumber: number) => void
-  onSearch?: (query: string, results: number[]) => void
-}
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowDown, ArrowUp, Check, CheckCircle2, ChevronDown, Copy, Code as DefaultIcon, File, Search, X } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { ANIMATION_VARIANTS, COPY_VARIANTS, TOAST_VARIANTS } from './animations'
+import { Button } from './button'
+import { cn } from './cn'
+import { customTheme } from './custom-theme'
+import * as Icons from './icons'
 
 function getLanguageIcon(language: string) {
-  const IconComponent = Icons[`${language.charAt(0).toUpperCase() + language.slice(1)}Icon`] || Icons.CodeIcon
-  return <IconComponent size={16} />
+  switch (language.toLowerCase()) {
+    case 'typescript':
+      return <Icons.TypescriptIcon size={16} />
+    case 'python':
+      return <Icons.PythonIcon size={16} />
+    case 'rust':
+      return <Icons.RustIcon size={16} />
+    case 'sql':
+      return <Icons.SqlLogo size={16} />
+    default:
+      return <DefaultIcon size={16} />
+  }
 }
 
 function calculateCodeStats(code: string) {
@@ -46,44 +32,84 @@ function calculateCodeStats(code: string) {
   return { lines, chars, words }
 }
 
-function CodeBlock({
+type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'custom';
+
+interface BadgeProps {
+  variant?: BadgeVariant;
+  customColor?: string;
+}
+
+function getBadgeClasses({ variant = 'default', customColor }: BadgeProps): string {
+  const baseClasses = "px-2 py-0.5 text-xs font-medium rounded-full transition-all duration-200";
+  
+  if (variant === 'custom' && customColor) {
+    return `${baseClasses} border border-${customColor}-500/30 bg-${customColor}-500/10 text-${customColor}-400 hover:border-${customColor}-400 hover:text-${customColor}-300`;
+  }
+
+  switch (variant) {
+    case "primary":
+      return `${baseClasses} border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-400 hover:text-blue-300`;
+    case "secondary":
+      return `${baseClasses} border border-purple-500/30 bg-purple-500/10 text-purple-400 hover:border-purple-400 hover:text-purple-300`;
+    case "success":
+      return `${baseClasses} border border-green-500/30 bg-green-500/10 text-green-400 hover:border-green-400 hover:text-green-300`;
+    case "warning":
+      return `${baseClasses} border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:border-yellow-400 hover:text-yellow-300`;
+    case "danger":
+      return `${baseClasses} border border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-400 hover:text-red-300`;
+    default:
+      return `${baseClasses} border border-[#333333] bg-[#111111] text-zinc-400 hover:border-[#444444] hover:text-zinc-300`;
+  }
+}
+
+export type CodeBlockProps = {
+  code: string;
+  language: string;
+  fileName?: string;
+  badges?: string[];
+  showLineNumbers?: boolean;
+  enableLineHighlight?: boolean;
+  showMetaInfo?: boolean;
+  maxHeight?: string;
+  className?: string;
+  onCopy?: (code: string) => void;
+  onLineClick?: (lineNumber: number) => void;
+  onSearch?: (query: string, results: number[]) => void;
+  badgeVariant?: BadgeVariant;
+  badgeColor?: string;
+  fileNameColor?: string;
+  initialSearchQuery?: string;
+  initialSearchResults?: number[];
+}
+
+export function CodeBlock({
   code,
-  fileName,
   language,
-  badges = [],
+  fileName,
+  badges,
   showLineNumbers = true,
-  enableLineHighlight = true,
+  enableLineHighlight = false,
   showMetaInfo = true,
-  maxHeight = "60vh",
-  className,
+  maxHeight = '400px',
   onCopy,
   onLineClick,
-  onSearch
+  onSearch,
+  badgeVariant = 'default',
+  badgeColor,
+  fileNameColor,
+  initialSearchQuery = "",
+  initialSearchResults = [],
 }: CodeBlockProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [highlightedLines, setHighlightedLines] = useState<number[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isSearching, setIsSearching] = useState(false)
-  const [searchResults, setSearchResults] = useState<number[]>([])
-  const [currentResultIndex, setCurrentResultIndex] = useState<number>(0)
+  const [isSearching, setIsSearching] = useState(!!initialSearchQuery)
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
+  const [searchResults, setSearchResults] = useState<number[]>(initialSearchResults)
+  const [currentResultIndex, setCurrentResultIndex] = useState(initialSearchResults.length > 0 ? 0 : -1)
+  const [highlightedLines, setHighlightedLines] = useState<number[]>(initialSearchResults)
+  const [stats] = useState(calculateCodeStats(code))
   const codeRef = useRef<HTMLDivElement>(null)
-
-  const stats = calculateCodeStats(code)
-
-  const handleLineClick = useCallback((lineNumber: number) => {
-    if (!enableLineHighlight) return
-    
-    setHighlightedLines(prev => {
-      const newLines = prev.includes(lineNumber)
-        ? prev.filter(n => n !== lineNumber)
-        : [...prev, lineNumber].sort((a, b) => a - b)
-      
-      onLineClick?.(lineNumber)
-      return newLines
-    })
-  }, [enableLineHighlight, onLineClick])
 
   const scrollToLine = useCallback((lineNumber: number) => {
     if (!codeRef.current) return
@@ -98,7 +124,7 @@ function CodeBlock({
     setSearchQuery(query)
     if (!query) {
       setSearchResults([])
-      setCurrentResultIndex(0)
+      setCurrentResultIndex(-1)
       setHighlightedLines([])
       onSearch?.("", [])
       return
@@ -122,145 +148,139 @@ function CodeBlock({
     }
   }, [code, onSearch, scrollToLine])
 
-  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      if (searchResults.length === 0) return
-
-      setCurrentResultIndex(prev => {
-        const nextIndex = prev + 1
-        if (nextIndex >= searchResults.length) {
-          return 0
-        }
-        return nextIndex
-      })
-    }
-  }, [searchResults.length])
-
-  const handleSearchResultsNavigate = useCallback((direction: 'next' | 'prev') => {
-    setCurrentResultIndex(prev => {
-      if (direction === 'next') {
-        const nextIndex = prev + 1
-        if (nextIndex >= searchResults.length) {
-          return 0
-        }
-        return nextIndex
-      } else {
-        const prevIndex = prev - 1
-        if (prevIndex < 0) {
-          return searchResults.length - 1
-        }
-        return prevIndex
-      }
-    })
-  }, [searchResults.length])
-
   useEffect(() => {
-    if (searchResults.length > 0) {
-      scrollToLine(searchResults[currentResultIndex])
-    }
-  }, [currentResultIndex, scrollToLine, searchResults])
+    handleSearch(searchQuery)
+  }, [searchQuery, handleSearch])
 
-  useEffect(() => {
-    if (!isSearching) {
-      setSearchQuery("")
-      setSearchResults([])
-      setCurrentResultIndex(0)
-    }
-  }, [isSearching])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isCopied) setIsCopied(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [isCopied])
-
-  const copyToClipboard = useCallback(() => {
-    if (!navigator?.clipboard) {
-      console.warn('Clipboard not supported')
-      return
-    }
-
-    navigator.clipboard.writeText(code).then(() => {
+  const copyToClipboard = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(code)
       setIsCopied(true)
       onCopy?.(code)
-    })
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy:', error)
+    }
   }, [code, onCopy])
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      e.preventDefault()
-      copyToClipboard()
-    } else if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-      e.preventDefault()
-      setIsSearching(true)
-    } else if (e.key === 'Escape') {
-      setIsSearching(false)
-    }
-  }, [copyToClipboard])
+  const goToNextResult = useCallback(() => {
+    if (searchResults.length === 0) return
+    const nextIndex = (currentResultIndex + 1) % searchResults.length
+    setCurrentResultIndex(nextIndex)
+    scrollToLine(searchResults[nextIndex])
+  }, [searchResults, currentResultIndex, scrollToLine])
+
+  const goToPreviousResult = useCallback(() => {
+    if (searchResults.length === 0) return
+    const prevIndex = currentResultIndex - 1 < 0 ? searchResults.length - 1 : currentResultIndex - 1
+    setCurrentResultIndex(prevIndex)
+    scrollToLine(searchResults[prevIndex])
+  }, [searchResults, currentResultIndex, scrollToLine])
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [handleKeyDown])
+    function handleKeyboard(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'c') {
+        copyToClipboard()
+      }
+      
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f' && !isCollapsed) {
+        e.preventDefault()
+        setIsSearching(true)
+      }
 
-  const toggleCollapse = useCallback(() => {
-    setIsCollapsed(prev => !prev)
-  }, [])
+      if (isSearching && searchResults.length > 0) {
+        if (e.key === 'Enter') {
+          if (e.shiftKey) {
+            goToPreviousResult()
+          } else {
+            goToNextResult()
+          }
+        }
+      }
 
-  const renderSearchBar = () => {
+      if (e.key === 'Escape') {
+        setHighlightedLines([])
+        setIsSearching(false)
+        setSearchQuery("")
+        setSearchResults([])
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyboard)
+    return () => window.removeEventListener('keydown', handleKeyboard)
+  }, [isCollapsed, isSearching, searchResults, currentResultIndex, copyToClipboard, goToNextResult, goToPreviousResult])
+
+  const handleLineClick = (lineNumber: number) => {
+    if (enableLineHighlight) {
+      setHighlightedLines(prev => 
+        prev.includes(lineNumber)
+          ? prev.filter(line => line !== lineNumber)
+          : [...prev, lineNumber]
+      );
+      onLineClick?.(lineNumber);
+    }
+  };
+
+  function renderSearchUI() {
     if (!isSearching) return null
 
     return (
-      <div className="flex items-center gap-2 bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 py-1.5 w-full">
-        <Search size={16} className="text-zinc-500" />
-        <input
-          type="text"
-          placeholder="Search code..."
-          className="bg-transparent text-zinc-200 placeholder:text-zinc-500 focus:outline-none w-full"
-          value={searchQuery}
-          onChange={e => handleSearch(e.target.value)}
-          onKeyDown={handleSearchKeyDown}
-          autoFocus
-        />
-        {searchQuery && (
-          <>
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
-              <span>{searchResults.length} results</span>
-              {searchResults.length > 0 && (
-                <span>
-                  {currentResultIndex + 1}/{searchResults.length}
-                </span>
+      <div className="flex items-center gap-2 bg-[#111111] rounded-lg border border-[#333333] p-1 h-8">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search..."
+            className="w-40 px-2 py-1 text-sm bg-transparent text-zinc-300 focus:outline-none placeholder:text-zinc-600"
+            autoFocus
+          />
+          {searchQuery && (
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+              {searchResults.length > 0 ? (
+                <span>{currentResultIndex + 1}/{searchResults.length}</span>
+              ) : (
+                <span>No results</span>
               )}
             </div>
-
+          )}
+        </div>
+        
+        {searchResults.length > 0 && (
+          <>
+            <div className="h-4 w-[1px] bg-[#333333]" />
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleSearchResultsNavigate('prev')}
-                className="h-5 w-5 text-zinc-500 hover:text-zinc-200 rounded transition-colors duration-200 hover:bg-white/5"
+                onClick={goToPreviousResult}
+                className="h-6 w-6 text-zinc-500 hover:text-zinc-300"
               >
                 <ArrowUp size={14} />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleSearchResultsNavigate('next')}
-                className="h-5 w-5 text-zinc-500 hover:text-zinc-200 rounded transition-colors duration-200 hover:bg-white/5"
+                onClick={goToNextResult}
+                className="h-6 w-6 text-zinc-500 hover:text-zinc-300"
               >
                 <ArrowDown size={14} />
               </Button>
             </div>
           </>
         )}
+        
+        <div className="h-4 w-[1px] bg-[#333333]" />
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setIsSearching(false)}
-          className="ml-auto h-5 w-5 text-zinc-500 hover:text-zinc-200 rounded transition-colors duration-200 hover:bg-white/5"
+          onClick={() => {
+            setIsSearching(false)
+            setSearchQuery("")
+            setSearchResults([])
+            setHighlightedLines([])
+          }}
+          className="h-6 w-6 text-zinc-500 hover:text-zinc-300"
         >
           <X size={14} />
         </Button>
@@ -268,80 +288,76 @@ function CodeBlock({
     )
   }
 
-  const renderKeyboardHints = () => {
-    if (isSearching) return null
-
-    return (
-      <div className="flex items-center gap-2 absolute top-3 right-12 text-xs text-zinc-600">
-        <kbd className="text-[10px] text-zinc-400 bg-zinc-800 border border-zinc-600 px-1 py-0.5 rounded">
-          ⌘/Ctrl + F
-        </kbd>
-        <span>to search</span>
-      </div>
-    )
-  }
-
   return (
-    <div
-      className={cn(
-        "group relative w-full bg-black rounded-lg",
-        isCollapsed ? 'h-12' : 'min-h-[200px]',
-        className,
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="flex items-center h-12 border-b border-b-zinc-800">
-        <div className="flex items-center gap-2 text-xs text-zinc-400 px-4">
-          {showMetaInfo && (
-            <>
-              <div className="flex items-center gap-1.5">
-                {getLanguageIcon(language)}
-                <span className="text-zinc-200">{language}</span>
+    <div className='relative'>
+      <div 
+        className="group relative rounded-xl overflow-hidden bg-[#0A0A0A] dark:bg-[#0A0A0A] border border-[#333333] dark:border-[#333333] w-full transition-all duration-200"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex justify-between items-center px-4 py-2.5 bg-[#0A0A0A] dark:bg-[#0A0A0A] border-b border-[#333333]">
+          <div className="flex items-center gap-3">
+            <span className="text-zinc-500 dark:text-zinc-500 transition-colors duration-200 group-hover:text-zinc-400">
+              {getLanguageIcon(language)}
+            </span>
+            {fileName && (
+              <div className={cn(
+                "flex items-center gap-2 rounded-full px-3 py-1 border transition-all duration-200",
+                fileNameColor
+                  ? `border-${fileNameColor}-500/30 bg-${fileNameColor}-500/10 text-${fileNameColor}-400 group-hover:border-${fileNameColor}-400 group-hover:text-${fileNameColor}-300`
+                  : "bg-[#111111] border-[#333333] group-hover:border-[#444444]"
+              )}>
+                <File size={12} className={fileNameColor ? `text-${fileNameColor}-400` : "text-zinc-400"} />
+                <span className={cn(
+                  "text-sm font-medium transition-colors duration-200",
+                  fileNameColor ? `text-${fileNameColor}-400 group-hover:text-${fileNameColor}-300` : "text-zinc-400 group-hover:text-zinc-300"
+                )}>
+                  {fileName}
+                </span>
               </div>
-              <div className="flex items-center">
-                <span>{stats.lines} lines</span>
-                <span className="mx-1.5 text-zinc-600">•</span>
-                <span>{stats.chars} chars</span>
-                <span className="mx-1.5 text-zinc-600">•</span>
-                <span>{stats.words} words</span>
-              </div>
-              {badges.map((badge, index) => (
+            )}
+            <div className="flex items-center gap-2">
+              {badges?.map((badge, index) => (
                 <span
                   key={index}
-                  className="bg-zinc-900 text-zinc-300 border border-zinc-700 rounded-md px-1.5 py-0.5"
+                  className={getBadgeClasses({ variant: badgeVariant, customColor: badgeColor })}
                 >
                   {badge}
                 </span>
               ))}
-            </>
-          )}
-        </div>
+              {showMetaInfo && (
+                <span className="px-2 py-0.5 text-xs font-medium text-zinc-500">
+                  {stats.lines} lines • {stats.words} words
+                </span>
+              )}
+            </div>
+          </div>
 
-        <div className="relative ml-auto pr-4">
-          {renderSearchBar()}
+          <div className="flex items-center space-x-1.5 h-8">
+            {renderSearchUI()}
 
-          <div className="flex items-center gap-1">
+            {!isSearching && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSearching(true)}
+                className="relative h-8 w-8 text-zinc-500 hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-white/10"
+                title="Search (⌘/Ctrl + F)"
+              >
+                <Search size={16} />
+              </Button>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsSearching(true)}
-              className="text-zinc-500 hover:text-zinc-200 h-8 w-8 rounded-lg transition-all duration-200 hover:bg-white/5"
-              title="Search code  (⌘/Ctrl + F)"
-            >
-              <Search size={16} />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleCollapse}
-              className="text-zinc-500 hover:text-zinc-200 h-8 w-8 rounded-lg transition-all duration-200 hover:bg-white/5"
-              title={`${isCollapsed ? 'Expand' : 'Collapse'} code block`}
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="relative h-8 w-8 text-zinc-500 hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-white/10"
             >
               <motion.div
+                initial={false}
                 animate={{ rotate: isCollapsed ? 0 : 180 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
                 <ChevronDown size={16} />
               </motion.div>
@@ -351,8 +367,8 @@ function CodeBlock({
               variant="ghost"
               size="icon"
               onClick={copyToClipboard}
-              className="relative h-8 w-8 text-zinc-500 hover:text-zinc-200 rounded-lg transition-all duration-200 hover:bg-white/5"
-              title="Copy code  (⌘/Ctrl + C)"
+              className="relative h-8 w-8 text-zinc-500 hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-white/10"
+              title="Copy code (⌘/Ctrl + C)"
             >
               <AnimatePresence mode="wait">
                 {isCopied ? (
@@ -374,8 +390,6 @@ function CodeBlock({
           </div>
         </div>
 
-        {renderKeyboardHints()}
-
         <AnimatePresence initial={false}>
           {!isCollapsed && (
             <motion.div
@@ -387,13 +401,13 @@ function CodeBlock({
             >
               <div className="relative" ref={codeRef}>
                 {showLineNumbers && (
-                  <div className="absolute left-0 top-0 bottom-0 w-[3.5rem] bg-gradient-to-r from-black via-black/50 to-transparent pointer-events-none z-10" />
+                  <div className="absolute left-0 top-0 bottom-0 w-[3.5rem] bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/50 to-transparent pointer-events-none z-10" />
                 )}
                 
                 <div className="p-4 overflow-y-auto" style={{ maxHeight }}>
                   <SyntaxHighlighter
                     language={language.toLowerCase()}
-                    style={customTheme as PrismTheme}
+                    style={customTheme}
                     customStyle={{
                       margin: 0,
                       padding: 0,
@@ -414,17 +428,17 @@ function CodeBlock({
                     wrapLongLines={true}
                     lineProps={(lineNumber) => ({
                       style: {
-                        cursor: enableLineHighlight ? 'pointer' : 'default',
-                        background: highlightedLines.includes(lineNumber) 
-                          ? searchResults.length > 0 && lineNumber === searchResults[currentResultIndex]
-                            ? 'rgba(255, 255, 255, 0.1)'
-                            : 'rgba(255, 255, 255, 0.05)'
-                          : 'transparent',
                         display: 'block',
+                        cursor: enableLineHighlight ? 'pointer' : 'default',
+                        backgroundColor: highlightedLines.includes(lineNumber)
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : searchResults.includes(lineNumber)
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'transparent',
                         transition: 'background-color 0.15s ease',
                       },
                       onClick: () => handleLineClick(lineNumber),
-                      'data-line-number': lineNumber
+                      'data-line-number': lineNumber,
                     })}
                   >
                     {code}
@@ -455,5 +469,3 @@ function CodeBlock({
     </div>
   )
 }
-
-export default memo(CodeBlock)

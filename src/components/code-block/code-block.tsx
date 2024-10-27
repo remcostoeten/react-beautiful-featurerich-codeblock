@@ -62,11 +62,16 @@ function getBadgeClasses({ variant = 'default', customColor }: BadgeProps): stri
   }
 }
 
+type Badge = {
+  text: string;
+  variant: BadgeVariant;
+};
+
 export type CodeBlockProps = {
   code: string;
   language: string;
   fileName?: string;
-  badges?: string[];
+  badges?: Badge[];
   showLineNumbers?: boolean;
   enableLineHighlight?: boolean;
   showMetaInfo?: boolean;
@@ -80,13 +85,14 @@ export type CodeBlockProps = {
   fileNameColor?: string;
   initialSearchQuery?: string;
   initialSearchResults?: number[];
+  initialHighlightedLines?: number[];
 }
 
 export function CodeBlock({
   code,
   language,
   fileName,
-  badges,
+  badges = [],
   showLineNumbers = true,
   enableLineHighlight = false,
   showMetaInfo = true,
@@ -99,6 +105,7 @@ export function CodeBlock({
   fileNameColor,
   initialSearchQuery = "",
   initialSearchResults = [],
+  initialHighlightedLines = [],
 }: CodeBlockProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
@@ -107,7 +114,7 @@ export function CodeBlock({
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
   const [searchResults, setSearchResults] = useState<number[]>(initialSearchResults)
   const [currentResultIndex, setCurrentResultIndex] = useState(initialSearchResults.length > 0 ? 0 : -1)
-  const [highlightedLines, setHighlightedLines] = useState<number[]>(initialSearchResults)
+  const [highlightedLines, setHighlightedLines] = useState<number[]>(initialHighlightedLines)
   const [stats] = useState(calculateCodeStats(code))
   const codeRef = useRef<HTMLDivElement>(null)
 
@@ -210,7 +217,7 @@ export function CodeBlock({
     return () => window.removeEventListener('keydown', handleKeyboard)
   }, [isCollapsed, isSearching, searchResults, currentResultIndex, copyToClipboard, goToNextResult, goToPreviousResult])
 
-  const handleLineClick = (lineNumber: number) => {
+  const handleLineClick = useCallback((lineNumber: number) => {
     if (enableLineHighlight) {
       setHighlightedLines(prev => 
         prev.includes(lineNumber)
@@ -219,7 +226,7 @@ export function CodeBlock({
       );
       onLineClick?.(lineNumber);
     }
-  };
+  }, [enableLineHighlight, onLineClick]);
 
   function renderSearchUI() {
     if (!isSearching) return null
@@ -317,12 +324,15 @@ export function CodeBlock({
               </div>
             )}
             <div className="flex items-center gap-2">
-              {badges?.map((badge, index) => (
+              {badges.map((badge, index) => (
                 <span
                   key={index}
-                  className={getBadgeClasses({ variant: badgeVariant, customColor: badgeColor })}
+                  className={getBadgeClasses({ 
+                    variant: badge.variant || badgeVariant, 
+                    customColor: badgeColor 
+                  })}
                 >
-                  {badge}
+                  {badge.text}
                 </span>
               ))}
               {showMetaInfo && (
@@ -432,13 +442,9 @@ export function CodeBlock({
                         cursor: enableLineHighlight ? 'pointer' : 'default',
                         backgroundColor: highlightedLines.includes(lineNumber)
                           ? 'rgba(255, 255, 255, 0.1)'
-                          : searchResults.includes(lineNumber)
-                            ? 'rgba(255, 255, 255, 0.05)'
-                            : 'transparent',
-                        transition: 'background-color 0.15s ease',
+                          : 'transparent',
                       },
                       onClick: () => handleLineClick(lineNumber),
-                      'data-line-number': lineNumber,
                     })}
                   >
                     {code}

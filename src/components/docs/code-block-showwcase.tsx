@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { Button } from '../code-block/button'
 import { CodeBlock } from '../code-block/code-block'
 import { CodeBlockCreator } from './block-creator'
-export default function CodeBlockShowcase() {
-  const [activeTab, setActiveTab] = useState<string>('typescript')
+
+export function CodeBlockShowcase() {
+  const [activeTab, setActiveTab] = useState('typescript')
   const [searchDemo, setSearchDemo] = useState<{
     query: string;
     results: number[];

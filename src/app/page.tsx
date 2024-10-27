@@ -2,128 +2,166 @@
 
 import { Button } from '@/components/code-block/button'
 import { CodeBlock } from '@/components/code-block/code-block'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/docs/accordion"
 import { CodeBlockCreator } from '@/components/docs/block-creator'
-import { Code, Github } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/docs/tabs'
+import { Book, Code, Github, Terminal, Zap } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 
+// Code examples with different languages
 const codeExamples = {
-  javascript: `
-function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
+  javascript: `async function fetchUserData(userId) {
+  try {
+    const response = await fetch(\`https://api.example.com/users/\${userId}\`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch user data');
+    }
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return null;
+  }
 }
 
-console.log(fibonacci(10));
-  `,
-  python: `
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quick_sort(left) + middle + quick_sort(right)
+// Usage of the async function
+(async () => {
+  const userId = 123;
+  const user = await fetchUserData(userId);
+  if (user) {
+    console.log('User data:', user);
+  } else {
+    console.log('Failed to fetch user data');
+  }
+})();`,
+  
+  python: `import asyncio
+import aiohttp
 
-print(quick_sort([3, 6, 8, 10, 1, 2, 1]))
-  `,
-  rust: `
-fn main() {
-    let numbers = vec![1, 2, 3, 4, 5];
+async def fetch_pokemon_data(pokemon_name):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}') as response:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    'name': data['name'],
+                    'height': data['height'],
+                    'weight': data['weight'],
+                    'types': [t['type']['name'] for t in data['types']]
+                }
+            else:
+                return None
+
+async def main():
+    pokemon_names = ['pikachu', 'charizard', 'bulbasaur']
+    tasks = [fetch_pokemon_data(name) for name in pokemon_names]
+    results = await asyncio.gather(*tasks)
     
-    let doubled: Vec<i32> = numbers
-        .iter()
-        .map(|&x| x * 2)
+    for pokemon in results:
+        if pokemon:
+            print(f"Name: {pokemon['name']}")
+            print(f"Height: {pokemon['height']}")
+            print(f"Weight: {pokemon['weight']}")
+            print(f"Types: {', '.join(pokemon['types'])}")
+            print()
+        else:
+            print(f"Failed to fetch data for {pokemon}")
+
+asyncio.run(main())`,
+
+  rust: `use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn word_frequency(text: &str) -> HashMap<String, usize> {
+    let word_counts = Arc::new(Mutex::new(HashMap::new()));
+    let words: Vec<&str> = text.split_whitespace().collect();
+
+    let threads: Vec<_> = words
+        .chunks(words.len() / 4)
+        .map(|chunk| {
+            let word_counts = Arc::clone(&word_counts);
+            let chunk = chunk.to_vec();
+            thread::spawn(move || {
+                for word in chunk {
+                    let mut counts = word_counts.lock().unwrap();
+                    *counts.entry(word.to_lowercase()).or_insert(0) += 1;
+                }
+            })
+        })
         .collect();
+
+    for thread in threads {
+        thread.join().unwrap();
+    }
+
+    Arc::try_unwrap(word_counts).unwrap().into_inner().unwrap()
+}
+
+fn main() {
+    let text = "The quick brown fox jumps over the lazy dog. The dog barks, and the fox runs away.";
+    let frequency = word_frequency(text);
     
-    println!("Doubled numbers: {:?}", doubled);
-}
-  `,
-  sql: `
+    for (word, count) in frequency.iter() {
+        println!("{}: {}", word, count);
+    }
+}`,
+
+  sql: `WITH RECURSIVE subordinates AS (
+  SELECT employee_id, manager_id, first_name, last_name, 0 AS level
+  FROM employees
+  WHERE employee_id = 1  -- Start with the CEO
+
+  UNION ALL
+
+  SELECT e.employee_id, e.manager_id, e.first_name, e.last_name, s.level + 1
+  FROM employees e
+  INNER JOIN subordinates s ON s.employee_id = e.manager_id
+)
 SELECT 
-    customers.name,
-    COUNT(orders.id) as order_count,
-    SUM(orders.total) as total_spent
-FROM 
-    customers
-LEFT JOIN 
-    orders ON customers.id = orders.customer_id
-GROUP BY 
-    customers.id
-HAVING 
-    COUNT(orders.id) > 5
-ORDER BY 
-    total_spent DESC
-LIMIT 10;
-  `
+    CONCAT(REPEAT('  ', level), first_name, ' ', last_name) AS employee_hierarchy,
+    level
+FROM subordinates
+ORDER BY level, first_name, last_name;`
 }
 
-export default function DocsLandingPage() {
-  const [activeLanguage, setActiveLanguage] = useState('javascript')
-  const [searchDemoQuery, setSearchDemoQuery] = useState("n <= 1")
-  const [searchDemoResults, setSearchDemoResults] = useState<number[]>([])
-
-  const handleLineClick = (lineNumber: number) => {
-    // You can implement any logic here if needed
-    console.log(`Line ${lineNumber} clicked`);
+// Feature cards data
+const featureCards = [
+  {
+    Icon: Book,
+    title: 'Comprehensive Docs',
+    description: 'Detailed documentation to get you started quickly and efficiently.',
+    iconColor: 'text-blue-400'
+  },
+  {
+    Icon: Terminal,
+    title: 'Multiple Languages',
+    description: 'Support for a wide range of programming languages and syntaxes.',
+    iconColor: 'text-green-400'
+  },
+  {
+    Icon: Zap,
+    title: 'Customizable',
+    description: "Easily customize the appearance to match your project's design.",
+    iconColor: 'text-yellow-400'
+  },
+  {
+    Icon: Code,
+    title: 'Feature-Rich',
+    description: 'Line highlighting, search functionality, and more advanced features.',
+    iconColor: 'text-purple-400'
   }
+]
 
-  useEffect(() => {
-    // Find the line number containing "n <= 1"
-    const lines = codeExamples.javascript.split('\n');
-    const lineNumber = lines.findIndex(line => line.includes("n <= 1")) + 1;
-    setSearchDemoResults(lineNumber > 0 ? [lineNumber] : []);
-  }, [])
+// Navigation links
+const navLinks = [
+  { href: '#create-your-own', text: 'Create Your Own' },
+  { href: '#installation', text: 'Installation' },
+  { href: '#feature-showcase', text: 'Feature Showcase' },
+  { href: '#api-reference', text: 'API Reference' }
+]
 
-  const handleSearchDemo = (query: string, results: number[]) => {
-    setSearchDemoQuery(query)
-    setSearchDemoResults(results)
-  }
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="border-b border-[#333] py-6">
-        <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-3xl font-bold">CodeBlock Documentation</h1>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-6 py-12 space-y-16">
-        <section className="text-center">
-          <h2 className="text-4xl font-bold mb-4">A Beautiful Code Block Component for React</h2>
-          <p className="text-xl text-gray-400 mb-6 max-w-2xl mx-auto">
-            Enhance your React applications with a feature-rich, customizable code display component.
-            Created by <a href="https://github.com/remcostoeten" className="text-white hover:underline">remcostoeten</a>.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Button asChild>
-              <a href="https://github.com/remcostoeten/beautifull-code-block" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                <Github className="mr-2 h-5 w-5" />
-                View on GitHub
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href="https://www.npmjs.com/package/beautifull-code-block" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                <Code className="mr-2 h-5 w-5" />
-                View on npm
-              </a>
-            </Button>
-          </div>
-        </section>
-
-        <section>
-          <h3 className="text-2xl font-semibold mb-6">Installation</h3>
-          <p className="mb-4 text-gray-400">
-            You can install the CodeBlock component using the following bash script:
-          </p>
-          <CodeBlock
-            code={`#!/bin/bash
+// Installation script
+const installationScript = `#!/bin/bash
 
 echo "🚀 Installing beautiful-code-block component..."
 
@@ -158,241 +196,418 @@ npm install \\
   @radix-ui/react-dropdown-menu \\
   @radix-ui/react-toast
 
-echo "
-✅ Installation complete! 
+echo "✅ Installation complete!"
+`
 
-📁 Component files installed in: ./components/code-block
-📦 Dependencies installed:
-   • framer-motion
-   • lucide-react
-   • react-syntax-highlighter
-   • @radix-ui/react-slot
-   • class-variance-authority
-   • clsx
-   • tailwind-merge
-   • @radix-ui/react-dropdown-menu
-   • @radix-ui/react-toast
+// Components
+const FeatureCard = ({ Icon, title, description, iconColor }) => (
+  <div className="bg-gray-800 p-6 rounded-lg">
+    <Icon className={`h-10 w-10 ${iconColor} mb-4`} />
+    <h3 className="text-xl font-semibold mb-2">{title}</h3>
+    <p className="text-gray-400">{description}</p>
+  </div>
+)
 
-🔍 Make sure you have these peer dependencies in your project:
-   • react
-   • react-dom
-   • tailwindcss
+const InstallationSection = () => (
+  <section id="installation" className="text-left">
+    <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+      Installation
+    </h3>
+    <p className="mb-4 text-gray-400">
+      You can install the CodeBlock component using the following bash script:
+    </p>
+    <CodeBlock
+      code={installationScript}
+      language="bash"
+      showLineNumbers
+    />
+    <div className="mt-6 p-4 bg-black rounded-md text-gray-300 border border-gray-800">
+      <p className="font-semibold mb-2">After running the script:</p>
+      <ul className="list-disc list-inside space-y-1">
+        <li>A new folder called <code className="bg-gray-800 px-1 py-0.5 rounded">code-block</code> will be created in your components directory.</li>
+        <li>The CodeBlock component is now ready to use in your project.</li>
+        <li>Import it in your files like this: <code className="bg-gray-800 px-1 py-0.5 rounded">import CodeBlock from '@/components/code-block/code-block'</code></li>
+      </ul>
+    </div>
+  </section>
+)
 
-🎨 Component is ready to use!"
-`}
-            language="bash"
-            showLineNumbers
-          />
-          <p className="mt-4 text-gray-400">
-            Alternatively, you can use this one-liner command in your terminal:
-          </p>
-          <CodeBlock
-            code={`git clone --depth 1 --filter=blob:none --sparse https://github.com/remcostoeten/beautifull-code-block && cd beautifull-code-block && git sparse-checkout set src/components/code-block && mkdir -p ../components && cp -r src/components/code-block ../components/ && cd .. && rm -rf beautifull-code-block && npm install framer-motion lucide-react react-syntax-highlighter @radix-ui/react-slot class-variance-authority clsx tailwind-merge @radix-ui/react-dropdown-menu @radix-ui/react-toast && echo "✅ Code block component installed!"`}
-            language="bash"
-            showLineNumbers
-          />
-        </section>
+const ApiReferenceSection = () => (
+  <section id="api-reference" className="text-left">
+    <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+      API Reference
+    </h3>
+    <p className="mb-4 text-gray-400">
+      The CodeBlock component accepts the following props to customize its appearance and behavior:
+    </p>
+    <CodeBlock
+      code={`type CodeBlockProps = {
+  code: string;
+  language?: string;
+  showLineNumbers?: boolean;
+  enableLineHighlight?: boolean;
+  fileName?: string;
+  badges?: Array<{
+    text: string;
+    variant: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger'
+  }>;
+  onSearch?: (query: string, results: number[]) => void;
+  initialSearchQuery?: string;
+  initialSearchResults?: number[];
+  onLineClick?: (lineNumber: number) => void;
+  initialHighlightedLines?: number[];
+  maxHeight?: string;
+}`}
+      language="typescript"
+      fileName="CodeBlock.tsx"
+      showLineNumbers
+    />
+  </section>
+)
 
-        <section>
-          <h3 className="text-2xl font-semibold mb-6">Language Showcase</h3>
-          <div className="mb-4 flex space-x-2">
-            {Object.keys(codeExamples).map((lang) => (
-              <Button
-                key={lang}
-                variant={activeLanguage === lang ? "default" : "outline"}
-                onClick={() => setActiveLanguage(lang)}
-              >
-                {lang}
+export default function CodeBlockDocs() {
+  const [searchDemoQuery, setSearchDemoQuery] = useState("return userData")
+  const [searchDemoResults, setSearchDemoResults] = useState<number[]>([])
+  const [highlightedLines, setHighlightedLines] = useState<number[]>([3, 4, 5])
+
+  const handleLineClick = useCallback((lineNumber: number) => {
+    setHighlightedLines(prev => 
+      prev.includes(lineNumber)
+        ? prev.filter(line => line !== lineNumber)
+        : [...prev, lineNumber]
+    )
+  }, [])
+
+  useEffect(() => {
+    try {
+      const lines = codeExamples.javascript.split('\n')
+      const lineNumber = lines.findIndex(line => line.includes(searchDemoQuery)) + 1
+      setSearchDemoResults(lineNumber > 0 ? [lineNumber] : [])
+    } catch (error) {
+      console.error('Error in search functionality:', error)
+      setSearchDemoResults([])
+    }
+  }, [searchDemoQuery])
+
+  const handleSearchDemo = useCallback((query: string, results: number[]) => {
+    setSearchDemoQuery(query)
+    setSearchDemoResults(results)
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-black text-gray-200">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" 
+           aria-hidden="true" />
+      <div className="relative">
+        <header className="border-b border-gray-800 py-10">
+          <div className="max-w-6xl mx-auto px-6">
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              CodeBlock Documentation
+            </h1>
+          </div>
+        </header>
+
+        <main className="max-w-6xl mx-auto px-6 py-16 space-y-20">
+          {/* Hero Section */}
+          <section className="text-left">
+            <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              A Beautiful Code Block Component for React
+            </h2>
+            <p className="text-xl text-gray-400 mb-8 max-w-2xl">
+              Enhance your React applications with a feature-rich, customizable code display component.
+              Created by <a href="https://github.com/remcostoeten" className="text-blue-400 hover:underline">remcostoeten</a>.
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="flex space-x-4 mb-8">
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <a href="https://github.com/remcostoeten/beautifull-code-block" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   className="flex items-center">
+                  <Github className="mr-2 h-5 w-5" />
+                  View on GitHub
+                </a>
               </Button>
+              <Button variant="outline" asChild className="border-gray-700 hover:bg-gray-800">
+                <a href="https://www.npmjs.com/package/beautifull-code-block" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   className="flex items-center">
+                  <Code className="mr-2 h-5 w-5" />
+                  View on npm
+                </a>
+              </Button>
+            </div>
+
+            {/* Feature Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featureCards.map((card, index) => (
+                <FeatureCard key={index} {...card} />
+              ))}
+            </div>
+          </section>
+
+          {/* Navigation */}
+          <nav className="flex flex-wrap gap-4">
+            {navLinks.map(({ href, text }) => (
+              <a key={href} href={href} className="text-blue-400 hover:underline">
+                {text}
+              </a>
             ))}
-          </div>
-          <CodeBlock
-            code={codeExamples[activeLanguage]}
-            language={activeLanguage}
-            showLineNumbers
-            enableLineHighlight
-          />
-        </section>
+          </nav>
 
-        <section>
-          <h3 className="text-2xl font-semibold mb-6">Feature Showcase</h3>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="line-numbers">
-              <AccordionTrigger>Line Numbers</AccordionTrigger>
-              <AccordionContent>
-                <CodeBlock
-                  code={codeExamples.javascript}
-                  language="javascript"
-                  showLineNumbers={true}
-                />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="line-highlight">
-              <AccordionTrigger>Line Highlight</AccordionTrigger>
-              <AccordionContent>
-                <p className="mb-4 text-sm text-gray-400">Click on a line to highlight it. Click again to remove the highlight.</p>
-                <CodeBlock
-                  code={codeExamples.javascript}
-                  language="javascript"
-                  showLineNumbers={true}
-                  enableLineHighlight={true}
-                  onLineClick={handleLineClick}
-                />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="search">
-              <AccordionTrigger>Search Functionality</AccordionTrigger>
-              <AccordionContent>
-                <p className="mb-4 text-sm text-gray-400">
-                  This demo shows the search functionality in action. The search box is pre-filled with &quot;n &lt;= 1&quot; and the matching line is highlighted.
-                </p>
-                <CodeBlock
-                  code={codeExamples.javascript}
-                  language="javascript"
-                  showLineNumbers
-                  enableLineHighlight
-                  onSearch={handleSearchDemo}
-                  initialSearchQuery={searchDemoQuery}
-                  initialSearchResults={searchDemoResults}
-                />
-                <div className="mt-4 text-sm text-gray-400">
-                  Search query: <span className="text-white">{searchDemoQuery}</span>
-                  <br />
-                  Matching lines: <span className="text-white">{searchDemoResults.join(', ')}</span>
+          {/* Create Your Own Section */}
+          <section id="create-your-own">
+            <h3 className="text-3xl font-semibold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Create Your Own
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Experiment with the CodeBlock component by creating your own custom code snippet. 
+              Use the form below to input your code, select a language, add badges, and see the 
+              result in real-time.
+            </p>
+            <CodeBlockCreator />
+          </section>
+
+          {/* Installation Section */}
+          <InstallationSection />
+
+          {/* Feature Showcase Section */}
+          <section id="feature-showcase" className="text-left">
+            <h3 className="text-3xl font-semibold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Feature Showcase
+            </h3>
+            <Tabs defaultValue="search" className="w-full">
+              <TabsList className="bg-gray-800 p-1 rounded-lg mb-4">
+                <TabsTrigger value="search" className="data-[state=active]:bg-gray-700">Search</TabsTrigger>
+                <TabsTrigger value="line-highlight" className="data-[state=active]:bg-gray-700">Line Highlight</TabsTrigger>
+                <TabsTrigger value="file-name" className="data-[state=active]:bg-gray-700">File Name</TabsTrigger>
+                <TabsTrigger value="badges" className="data-[state=active]:bg-gray-700">Badges</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="search">
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400">
+                    This demo shows the search functionality in action. The search box is pre-filled 
+                    with &quot;return userData&quot; and the matching line is highlighted.
+                  </p>
+                  <CodeBlock
+                    code={codeExamples.javascript}
+                    language="javascript"
+                    showLineNumbers
+                    enableLineHighlight
+                    onSearch={handleSearchDemo}
+                    initialSearchQuery={searchDemoQuery}
+                    initialSearchResults={searchDemoResults}
+                  />
+                  <div className="text-sm text-gray-400">
+                    Search query: <span className="text-white">{searchDemoQuery}</span>
+                    <br />
+                    Matching lines: <span className="text-white">{searchDemoResults.join(', ')}</span>
+                  </div>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="file-name">
-              <AccordionTrigger>File Name Display</AccordionTrigger>
-              <AccordionContent>
+              </TabsContent>
+              
+              <TabsContent value="line-highlight">
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400">
+                    Click on any line number to highlight it. Click again to remove the highlight.
+                  </p>
+                  <CodeBlock
+                    code={codeExamples.javascript}
+                    language="javascript"
+                    showLineNumbers
+                    enableLineHighlight
+                    onLineClick={handleLineClick}
+                    initialHighlightedLines={highlightedLines}
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="file-name">
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400">
+                    Display a file name at the top of the code block for better context.
+                  </p>
+                  <CodeBlock
+                    code={codeExamples.rust}
+                    language="rust"
+                    fileName="word_frequency.rs"
+                    showLineNumbers
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="badges">
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400">
+                    Add badges to categorize or provide additional context to your code blocks.
+                  </p>
+                  <CodeBlock
+                    code={codeExamples.sql}
+                    language="sql"
+                    badges={[
+                      { text: 'SQL', variant: 'default' },
+                      { text: 'Advanced', variant: 'primary' },
+                      { text: 'Recursive', variant: 'secondary' },
+                      { text: 'Optimized', variant: 'success' },
+                      { text: 'Complex', variant: 'warning' },
+                      { text: 'Experimental', variant: 'danger' },
+                    ]}
+                    showLineNumbers
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </section>
+
+          {/* API Reference Section */}
+          <ApiReferenceSection />
+
+          {/* Usage Examples Section */}
+          <section className="text-left">
+            <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Usage Examples
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-xl font-semibold mb-4">Basic Usage</h4>
                 <CodeBlock
-                  code={codeExamples.javascript}
-                  language="javascript"
-                  fileName="example.js"
+                  code={`import { CodeBlock } from '@/components/code-block/code-block'
+
+export default function Example() {
+  return (
+    <CodeBlock
+      code="console.log('Hello, World!');"
+      language="javascript"
+      showLineNumbers
+    />
+  )
+}`}
+                  language="typescript"
+                  fileName="BasicExample.tsx"
                   showLineNumbers
                 />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="badges">
-              <AccordionTrigger>Badges</AccordionTrigger>
-              <AccordionContent>
+              </div>
+
+              <div>
+                <h4 className="text-xl font-semibold mb-4">Advanced Usage with All Features</h4>
                 <CodeBlock
-                  code={codeExamples.javascript}
-                  language="javascript"
-                  badges={['Example', 'JavaScript']}
-                  showLineNumbers
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
+                  code={`import { CodeBlock } from '@/components/code-block/code-block'
 
-        <section>
-          <h3 className="text-2xl font-semibold mb-6">Create Your Own</h3>
-          <CodeBlockCreator />
-        </section>
-
-        <section>
-          <h3 className="text-2xl font-semibold mb-6">API Reference</h3>
-          <p className="mb-4 text-gray-400">
-            The CodeBlock component accepts the following props to customize its appearance and behavior:
-          </p>
-          <CodeBlock
-            code={`
-type CodeBlockProps = {
-  code: string;                // The code to be displayed
-  language: string;            // The programming language for syntax highlighting
-  fileName?: string;           // Optional file name to display
-  badges?: string[];           // Optional array of badge strings to display
-  showLineNumbers?: boolean;   // Whether to show line numbers (default: true)
-  enableLineHighlight?: boolean; // Allow clicking to highlight lines (default: false)
-  showMetaInfo?: boolean;      // Show metadata like line count (default: true)
-  maxHeight?: string;          // Maximum height of the code block (default: '400px')
-  onCopy?: (code: string) => void; // Callback when code is copied
-  onLineClick?: (lineNumber: number) => void; // Callback when a line is clicked
-  onSearch?: (query: string, results: number[]) => void; // Callback for search
-  badgeVariant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'custom';
-  badgeColor?: string;         // Custom color for badges when badgeVariant is 'custom'
-  fileNameColor?: string;      // Custom color for the file name
-  initialSearchQuery?: string; // Initial search query
-  initialSearchResults?: number[]; // Initial search results (line numbers)
-}
-
-// Example usage:
-<CodeBlock
-  code="console.log('Hello, world!');"
-  language="javascript"
-  fileName="example.js"
-  badges={['Example', 'JavaScript']}
-  showLineNumbers={true}
-  enableLineHighlight={true}
-  onCopy={(code) => console.log('Copied:', code)}
-  onLineClick={(lineNumber) => console.log('Clicked line:', lineNumber)}
-  onSearch={(query, results) => console.log('Search:', query, 'Results:', results)}
-  badgeVariant="primary"
-/>
-            `}
-            language="typescript"
-            fileName="CodeBlock.tsx"
-            showLineNumbers
-          />
-          <div className="mt-6 space-y-4">
-            <h4 className="text-xl font-semibold">Key Features Explained:</h4>
-            <ul className="list-disc list-inside space-y-2 text-gray-400">
-              <li><strong>Syntax Highlighting:</strong> Automatically detects and highlights syntax based on the specified language.</li>
-              <li><strong>Line Numbers:</strong> Optionally display line numbers for easy reference.</li>
-              <li><strong>Line Highlighting:</strong> Enable interactive line highlighting by clicking on individual lines.</li>
-              <li><strong>File Name Display:</strong> Show a file name at the top of the code block for context.</li>
-              <li><strong>Badges:</strong> Add custom badges to categorize or tag your code snippets.</li>
-              <li><strong>Search Functionality:</strong> Built-in search with highlighting of matching lines.</li>
-              <li><strong>Copy to Clipboard:</strong> One-click copy functionality with visual feedback.</li>
-              <li><strong>Customizable Appearance:</strong> Adjust colors, max height, and other visual aspects to fit your design.</li>
-            </ul>
-          </div>
-          <div className="mt-6">
-            <h4 className="text-xl font-semibold mb-2">Implementation Example:</h4>
-            <CodeBlock
-              code={`
-import { CodeBlock } from '@/components/code-block/code-block';
-
-function MyComponent() {
-  const handleCopy = (code: string) => {
-    console.log('Code copied:', code);
-  };
+export default function AdvancedExample() {
+  const handleSearch = (query: string, results: number[]) => {
+    console.log(\`Found matches at lines: \${results.join(', ')}\`)
+  }
 
   const handleLineClick = (lineNumber: number) => {
-    console.log('Line clicked:', lineNumber);
-  };
+    console.log(\`Line \${lineNumber} clicked\`)
+  }
 
   return (
     <CodeBlock
-      code="function greet(name) {\n  console.log(\`Hello, \${name}!\`);\n}\n\ngreet('World');"
-      language="javascript"
-      fileName="greeting.js"
-      badges={['Function', 'Example']}
-      showLineNumbers={true}
-      enableLineHighlight={true}
-      onCopy={handleCopy}
+      code={codeString}
+      language="python"
+      showLineNumbers
+      enableLineHighlight
+      fileName="example.py"
+      badges={[
+        { text: 'Python', variant: 'primary' },
+        { text: 'Example', variant: 'secondary' }
+      ]}
+      onSearch={handleSearch}
       onLineClick={handleLineClick}
-      badgeVariant="primary"
+      initialHighlightedLines={[1, 2, 3]}
+      maxHeight="500px"
     />
-  );
-}
-              `}
-              language="typescript"
-              fileName="MyComponent.tsx"
-              showLineNumbers
-              enableLineHighlight
-            />
-          </div>
-        </section>
-      </main>
+  )
+}`}
+                  language="typescript"
+                  fileName="AdvancedExample.tsx"
+                  showLineNumbers
+                  badges={[
+                    { text: 'TypeScript', variant: 'primary' },
+                    { text: 'React', variant: 'secondary' }
+                  ]}
+                />
+              </div>
+            </div>
+          </section>
 
-      <footer className="border-t border-[#333] py-6 text-center text-gray-400">
-        <div className="max-w-6xl mx-auto px-6">
-          <p>Created by <a href="https://github.com/remcostoeten" className="text-white hover:underline">Remco Stoeten</a>. Licensed under MIT.</p>
-        </div>
-      </footer>
+          {/* Customization Section */}
+          <section className="text-left">
+            <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Customization
+            </h3>
+            <p className="text-gray-400 mb-6">
+              The CodeBlock component can be customized using Tailwind CSS classes or by modifying the component's source code.
+              Here are some common customization examples:
+            </p>
+            <div className="grid gap-6">
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <h4 className="text-xl font-semibold mb-4">Theme Customization</h4>
+                <p className="text-gray-400 mb-4">
+                  You can customize the colors, typography, and spacing using Tailwind CSS classes:
+                </p>
+                <CodeBlock
+                  code={`<CodeBlock
+  className="dark:bg-gray-900 rounded-xl shadow-lg"
+  code={myCode}
+  language="javascript"
+  showLineNumbers
+/>`}
+                  language="jsx"
+                  showLineNumbers
+                />
+              </div>
+
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <h4 className="text-xl font-semibold mb-4">Custom Badge Styles</h4>
+                <p className="text-gray-400 mb-4">
+                  Create your own badge variants by extending the component's styles:
+                </p>
+                <CodeBlock
+                  code={`// In your CSS or Tailwind config
+.badge-custom {
+  @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white;
+}
+
+// In your component
+<CodeBlock
+  code={myCode}
+  badges={[
+    { text: 'Custom', variant: 'custom' }
+  ]}
+/>`}
+                  language="jsx"
+                  showLineNumbers
+                />
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer className="border-t border-gray-800 py-10 mt-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-gray-400">
+                Created by <a href="https://github.com/remcostoeten" className="text-blue-400 hover:underline">Remco Stoeten</a>
+              </p>
+              <div className="flex space-x-4">
+                <a href="https://github.com/remcostoeten/beautifull-code-block/issues" 
+                   className="text-gray-400 hover:text-blue-400">
+                  Report an Issue
+                </a>
+                <a href="https://github.com/remcostoeten/beautifull-code-block/blob/main/LICENSE" 
+                   className="text-gray-400 hover:text-blue-400">
+                  License
+                </a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }

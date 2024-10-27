@@ -5,6 +5,7 @@ import { CodeBlock } from '../code-block/code-block'
 import { Button } from '../code-block/button'
 import { Input } from './Input'
 import * as Icons from '../code-block/icons'
+import { GlowButton } from '../ui/glow-button'
 
 type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'custom';
 
@@ -18,6 +19,29 @@ const languageOptions: { value: SupportedLanguage; label: string; icon: JSX.Elem
   { value: 'sql', label: 'SQL', icon: <Icons.SqlLogo size={16} /> },
   { value: 'other', label: 'Other', icon: <Icons.JavascriptIcon size={16} /> },
 ];
+
+const demoData = {
+  code: `import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+
+export default Counter;`,
+  language: 'typescript' as SupportedLanguage,
+  fileName: 'Counter.tsx',
+  badges: ['React', 'Hooks', 'TypeScript'],
+  badgeVariant: 'primary' as BadgeVariant,
+};
 
 export function CodeBlockCreator() {
   const [code, setCode] = useState('')
@@ -34,8 +58,21 @@ export function CodeBlockCreator() {
     }
   }
 
+  const fillWithDemoData = () => {
+    setCode(demoData.code);
+    setLanguage(demoData.language);
+    setFileName(demoData.fileName);
+    setBadges(demoData.badges);
+    setBadgeVariant(demoData.badgeVariant);
+  }
+
   return (
     <div className="space-y-4">
+      <div className="mb-4">
+        <GlowButton onClick={fillWithDemoData} size="small" className="bg-blue-600 hover:bg-blue-700">
+          Fill with Demo Data
+        </GlowButton>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <textarea
@@ -103,8 +140,7 @@ export function CodeBlockCreator() {
           code={code || '// Your code will appear here'}
           language={language}
           fileName={fileName}
-          badges={badges}
-          badgeVariant={badgeVariant}
+          badges={badges.map(badge => ({ text: badge, variant: badgeVariant }))}
           showLineNumbers
           enableLineHighlight
         />

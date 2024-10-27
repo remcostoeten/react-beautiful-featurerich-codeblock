@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { CodeBlock } from '../code-block/code-block'
 import { Button } from '../code-block/button'
-import { Input } from './Input'
+import { CodeBlock } from '../code-block/code-block'
 import * as Icons from '../code-block/icons'
-import { GlowButton } from '../ui/glow-button'
+import { Input } from './Input'
 
 type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'custom';
 
@@ -68,11 +67,6 @@ export function CodeBlockCreator() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4">
-        <GlowButton onClick={fillWithDemoData} size="small" className="bg-blue-600 hover:bg-blue-700">
-          Fill with Demo Data
-        </GlowButton>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <textarea
@@ -81,6 +75,11 @@ export function CodeBlockCreator() {
             placeholder="Enter your code here..."
             className="w-full h-40 p-2 bg-[#111111] text-white border border-[#333333] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        <div>
+          <Button  className='border px-4 py-2 bg-zinc-300 w-full text-black'
+          
+          onClick={fillWithDemoData}>Fill with demo data</Button>
+        </div>
         </div>
         <div className="space-y-4">
           <div>

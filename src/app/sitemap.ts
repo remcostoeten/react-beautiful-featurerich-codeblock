@@ -1,3 +1,4 @@
+
 import { MetadataRoute } from 'next';
 import { config } from './core/config';
 

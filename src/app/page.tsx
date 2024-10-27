@@ -4,7 +4,7 @@ import { Button } from '@/components/code-block/button'
 import { CodeBlock } from '@/components/code-block/code-block'
 import { CodeBlockCreator } from '@/components/docs/block-creator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/docs/tabs'
-import { Book, Code, Github, Terminal, Zap } from 'lucide-react'
+import { Github } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 // Code examples with different languages
@@ -124,41 +124,7 @@ FROM subordinates
 ORDER BY level, first_name, last_name;`
 }
 
-// Feature cards data
-const featureCards = [
-  {
-    Icon: Book,
-    title: 'Comprehensive Docs',
-    description: 'Detailed documentation to get you started quickly and efficiently.',
-    iconColor: 'text-blue-400'
-  },
-  {
-    Icon: Terminal,
-    title: 'Multiple Languages',
-    description: 'Support for a wide range of programming languages and syntaxes.',
-    iconColor: 'text-green-400'
-  },
-  {
-    Icon: Zap,
-    title: 'Customizable',
-    description: "Easily customize the appearance to match your project's design.",
-    iconColor: 'text-yellow-400'
-  },
-  {
-    Icon: Code,
-    title: 'Feature-Rich',
-    description: 'Line highlighting, search functionality, and more advanced features.',
-    iconColor: 'text-purple-400'
-  }
-]
 
-// Navigation links
-const navLinks = [
-  { href: '#create-your-own', text: 'Create Your Own' },
-  { href: '#installation', text: 'Installation' },
-  { href: '#feature-showcase', text: 'Feature Showcase' },
-  { href: '#api-reference', text: 'API Reference' }
-]
 
 // Installation script
 const installationScript = `#!/bin/bash
@@ -199,18 +165,9 @@ npm install \\
 echo "✅ Installation complete!"
 `
 
-// Components
-const FeatureCard = ({ Icon, title, description, iconColor }) => (
-  <div className="bg-gray-800 p-6 rounded-lg">
-    <Icon className={`h-10 w-10 ${iconColor} mb-4`} />
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-gray-400">{description}</p>
-  </div>
-)
-
 const InstallationSection = () => (
   <section id="installation" className="text-left">
-    <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+    <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
       Installation
     </h3>
     <p className="mb-4 text-gray-400">
@@ -234,7 +191,7 @@ const InstallationSection = () => (
 
 const ApiReferenceSection = () => (
   <section id="api-reference" className="text-left">
-    <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+    <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
       API Reference
     </h3>
     <p className="mb-4 text-gray-400">
@@ -299,29 +256,22 @@ export default function CodeBlockDocs() {
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" 
            aria-hidden="true" />
       <div className="relative">
-        <header className="border-b border-gray-800 py-10">
-          <div className="max-w-6xl mx-auto px-6">
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-              CodeBlock Documentation
-            </h1>
-          </div>
-        </header>
 
         <main className="max-w-6xl mx-auto px-6 py-16 space-y-20">
           {/* Hero Section */}
           <section className="text-left">
-            <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            <h2 className="text-5xl font-semibold mb-6 text-neutral-200">
               A Beautiful Code Block Component for React
             </h2>
-            <p className="text-xl text-gray-400 mb-8 max-w-2xl">
-              Enhance your React applications with a feature-rich, customizable code display component.
-              Created by <a href="https://github.com/remcostoeten" className="text-blue-400 hover:underline">remcostoeten</a>.
+            <p className="flex flex-col gap-4 text-xl text-gray-400 mb-8 max-w-4xl">
+              Enhance your React applications with a feature-rich, customizable code display component. Simple, easy to use and understand API design with a "own your own" approach. NPM package will be avaialable soon, but for now you can copy the code from the repo or run the *highly experimental* installation script below. 
+              <span>Created by <a href="https://github.com/remcostoeten" className="text-neutral-100 font-bold hover:underline">@remcostoeten.</a></span>
             </p>
             
             {/* CTA Buttons */}
             <div className="flex space-x-4 mb-8">
-              <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                <a href="https://github.com/remcostoeten/beautifull-code-block" 
+              <Button variant="outline" asChild className="border-gray-700 hover:bg-gray-800">
+                  <a href="https://github.com/remcostoeten/beautifull-code-block" 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    className="flex items-center">
@@ -329,59 +279,15 @@ export default function CodeBlockDocs() {
                   View on GitHub
                 </a>
               </Button>
-              <Button variant="outline" asChild className="border-gray-700 hover:bg-gray-800">
-                <a href="https://www.npmjs.com/package/beautifull-code-block" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   className="flex items-center">
-                  <Code className="mr-2 h-5 w-5" />
-                  View on npm
-                </a>
-              </Button>
-            </div>
-
-            {/* Feature Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featureCards.map((card, index) => (
-                <FeatureCard key={index} {...card} />
-              ))}
             </div>
           </section>
-
-          {/* Navigation */}
-          <nav className="flex flex-wrap gap-4">
-            {navLinks.map(({ href, text }) => (
-              <a key={href} href={href} className="text-blue-400 hover:underline">
-                {text}
-              </a>
-            ))}
-          </nav>
-
-          {/* Create Your Own Section */}
-          <section id="create-your-own">
-            <h3 className="text-3xl font-semibold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-              Create Your Own
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Experiment with the CodeBlock component by creating your own custom code snippet. 
-              Use the form below to input your code, select a language, add badges, and see the 
-              result in real-time.
-            </p>
-            <CodeBlockCreator />
-          </section>
-
-          {/* Installation Section */}
-          <InstallationSection />
-
-          {/* Feature Showcase Section */}
           <section id="feature-showcase" className="text-left">
-            <h3 className="text-3xl font-semibold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
               Feature Showcase
             </h3>
             <Tabs defaultValue="search" className="w-full">
               <TabsList className="bg-gray-800 p-1 rounded-lg mb-4">
                 <TabsTrigger value="search" className="data-[state=active]:bg-gray-700">Search</TabsTrigger>
-                <TabsTrigger value="line-highlight" className="data-[state=active]:bg-gray-700">Line Highlight</TabsTrigger>
                 <TabsTrigger value="file-name" className="data-[state=active]:bg-gray-700">File Name</TabsTrigger>
                 <TabsTrigger value="badges" className="data-[state=active]:bg-gray-700">Badges</TabsTrigger>
               </TabsList>
@@ -409,23 +315,7 @@ export default function CodeBlockDocs() {
                 </div>
               </TabsContent>
               
-              <TabsContent value="line-highlight">
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-400">
-                    Click on any line number to highlight it. Click again to remove the highlight.
-                  </p>
-                  <CodeBlock
-                    code={codeExamples.javascript}
-                    language="javascript"
-                    showLineNumbers
-                    enableLineHighlight
-                    onLineClick={handleLineClick}
-                    initialHighlightedLines={highlightedLines}
-                  />
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="file-name">
+                <TabsContent value="file-name">
                 <div className="space-y-4">
                   <p className="text-sm text-gray-400">
                     Display a file name at the top of the code block for better context.
@@ -461,13 +351,27 @@ export default function CodeBlockDocs() {
               </TabsContent>
             </Tabs>
           </section>
+          <section id="create-your-own">
+            <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
+              Create Your Own
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Experiment with the CodeBlock component by creating your own custom code snippet. 
+              Use the form below to input your code, select a language, add badges, and see the 
+              result in real-time.
+            </p>
+            <CodeBlockCreator />
+          </section>
+
+          {/* Installation Section */}
+          <InstallationSection />
 
           {/* API Reference Section */}
           <ApiReferenceSection />
 
           {/* Usage Examples Section */}
           <section className="text-left">
-            <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
               Usage Examples
             </h3>
             <div className="space-y-6">
@@ -537,7 +441,7 @@ export default function AdvancedExample() {
 
           {/* Customization Section */}
           <section className="text-left">
-            <h3 className="text-2xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
               Customization
             </h3>
             <p className="text-gray-400 mb-6">
@@ -545,7 +449,7 @@ export default function AdvancedExample() {
               Here are some common customization examples:
             </p>
             <div className="grid gap-6">
-              <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="">
                 <h4 className="text-xl font-semibold mb-4">Theme Customization</h4>
                 <p className="text-gray-400 mb-4">
                   You can customize the colors, typography, and spacing using Tailwind CSS classes:
@@ -562,7 +466,7 @@ export default function AdvancedExample() {
                 />
               </div>
 
-              <div className="bg-gray-800 p-6 rounded-lg">
+              <div className="">
                 <h4 className="text-xl font-semibold mb-4">Custom Badge Styles</h4>
                 <p className="text-gray-400 mb-4">
                   Create your own badge variants by extending the component's styles:
@@ -592,15 +496,15 @@ export default function AdvancedExample() {
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-gray-400">
-                Created by <a href="https://github.com/remcostoeten" className="text-blue-400 hover:underline">Remco Stoeten</a>
+                Created by <a href="https://github.com/remcostoeten" className="text-neutral-100 hover:underline">Remco Stoeten</a>
               </p>
               <div className="flex space-x-4">
                 <a href="https://github.com/remcostoeten/beautifull-code-block/issues" 
-                   className="text-gray-400 hover:text-blue-400">
+                   className="text-gray-400 hover:text-neutral-100">
                   Report an Issue
                 </a>
                 <a href="https://github.com/remcostoeten/beautifull-code-block/blob/main/LICENSE" 
-                   className="text-gray-400 hover:text-blue-400">
+                   className="text-gray-400 hover:text-neutral-100">
                   License
                 </a>
               </div>

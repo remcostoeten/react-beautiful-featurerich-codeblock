@@ -2,7 +2,7 @@
 
 CodeBlock is a modern, feature-rich code block component for React applications. It provides syntax highlighting, interactive features, and customizable themes to enhance the display of code snippets in your projects.
 
-![CodeBlock Demo](./public/demo.gif)
+![chrome-capture-2024-10-27](https://github.com/user-attachments/assets/6d4c698b-484f-4d62-822a-a4307b87e137)
 
 ## Features
 

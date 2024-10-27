@@ -225,15 +225,6 @@ const ApiReferenceSection = () => (
 export default function CodeBlockDocs() {
   const [searchDemoQuery, setSearchDemoQuery] = useState("return userData")
   const [searchDemoResults, setSearchDemoResults] = useState<number[]>([])
-  const [highlightedLines, setHighlightedLines] = useState<number[]>([3, 4, 5])
-
-  const handleLineClick = useCallback((lineNumber: number) => {
-    setHighlightedLines(prev => 
-      prev.includes(lineNumber)
-        ? prev.filter(line => line !== lineNumber)
-        : [...prev, lineNumber]
-    )
-  }, [])
 
   useEffect(() => {
     try {

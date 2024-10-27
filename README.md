@@ -17,3 +17,7 @@ CodeBlock is a modern, feature-rich code block component for React applications.
 ## Installation
 
 To install CodeBlock in your project, run the following command:
+
+_highly experimental_
+
+See homepage docs @ [https://codeblock.remcostoeten.com](https://codeblock.remcostoeten.com)

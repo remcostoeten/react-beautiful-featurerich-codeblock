@@ -162,7 +162,7 @@ No package needed - own your code by copying the required files into your projec
 You can use the *highly experimental* one-liner install command:
 
 ```bash
-echo "🚀 Installing beautiful-code-block component..." && git clone --depth 1 --filter=blob:none --sparse https://github.com/remcostoeten/react-next-beautifull-code-block-syntax-highlight-search-kbd && cd react-next-beautifull-code-block-syntax-highlight-search-kbd && git sparse-checkout set src/components/code-block && mkdir -p ../components && cp -r src/components/code-block ../components/ && cd .. && rm -rf react-next-beautifull-code-block-syntax-highlight-search-kbd && echo "📦 Installing dependencies..." && npm install framer-motion lucide-react react-syntax-highlighter @radix-ui/react-slot class-variance-authority clsx tailwind-merge @radix-ui/react-dropdown-menu @radix-ui/react-toast && echo "✓ Installation complete!"
+echo "🚀 Installing beautiful-code-block component..." && git clone --depth 1 --filter=blob:none --sparse https://github.com/remcostoeten/react-next-beautifull-code-block-syntax-highlight-search-kbd && cd react-next-beautifull-code-block-syntax-highlight-search-kbd && git sparse-checkout set src/components/code-block && mkdir -p ../components && cp -r src/components/code-block ../components/ && cd .. && rm -rf react-next-beautifull-code-block-syntax-highlight-search-kbd && echo "📦 Installing dependencies..." && npm install framer-motion lucide-react react-syntax-highlighter @radix-ui/react-slot class-variance-authority clsx tailwind-merge @radix-ui/react-dropdown-menu @radix-ui/react-toast && echo "✓ Installation complete!""
 ```
 
 ### Installation Script

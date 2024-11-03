@@ -216,3 +216,9 @@ echo "🚀 Installing beautiful-code-block component..." &&
 ## Demo & Documentation
 
 For live examples and complete documentation, visit [https://codeblock.remcostoeten.com](https://codeblock.remcostoeten.com)
+
+xxx remco stoeten,
+
+
+- [@remcostoeten on Github](https://github.com/remcostoeten)
+- [@yowremco on X](https://twitter.com/yowremco)

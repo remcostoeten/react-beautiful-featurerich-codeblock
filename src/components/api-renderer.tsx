@@ -97,6 +97,9 @@ const THEME_CONFIG = {
   },
 } as const;
 
+/**
+ * Configuration for different spacing options in the component
+ */
 const SPACING_CONFIG = {
   section: {
     compact: 'space-y-2',
@@ -111,60 +114,108 @@ const SPACING_CONFIG = {
   }
 } as const;
 
+/**
+ * Represents a possible value for a prop with optional description
+ */
 type PropValue = {
   value: string;
   description?: string;
 }
 
+/**
+ * Represents a single property item in the API documentation
+ */
 type PropItem = {
+  /** The name of the property */
   name: string;
+  /** The type definition of the property */
   type: string;
+  /** Description of what the property does */
   description: string;
+  /** Whether the property is required */
   required?: boolean;
+  /** Default value if not specified */
   defaultValue?: string;
+  /** External documentation link */
   link?: string;
+  /** Whether the property is deprecated */
   deprecated?: boolean;
+  /** Version when the property was introduced */
   since?: string;
+  /** Example usage of the property */
   example?: string;
+  /** Whether the property is in beta */
   beta?: boolean;
+  /** Whether the property is experimental */
   experimental?: boolean;
-  values?: PropValue[];  // For enum/union types
-  notes?: string[];      // Additional notes/warnings
+  /** Possible values for enum/union types */
+  values?: PropValue[];
+  /** Additional notes or warnings */
+  notes?: string[];
+  /** Code snippets demonstrating usage */
   codeSnippets?: Array<{
     language: string;
     code: string;
     description?: string;
   }>;
-  relatedProps?: string[];  // Links to related props
+  /** Related properties */
+  relatedProps?: string[];
+  /** Version history */
   changelog?: Array<{
     version: string;
     changes: string;
   }>;
 }
 
+/**
+ * Represents a section of properties in the documentation
+ */
 type Section = {
+  /** Section title */
   title: string;
+  /** Section description */
   description: string;
+  /** Properties in this section */
   props: PropItem[];
+  /** Whether the section should be expanded by default */
   expandedByDefault?: boolean;
+  /** Optional icon for the section */
   icon?: React.ReactNode;
+  /** Whether the section is in beta */
   beta?: boolean;
 }
 
+/**
+ * Props for the PropsTable component
+ */
 type PropsTableProps = {
+  /** Array of sections containing props */
   sections: Section[];
+  /** Whether to show the type column */
   showTypeColumn?: boolean;
+  /** Whether to show the default value column */
   showDefaultColumn?: boolean;
+  /** Additional className for the container */
   className?: string;
+  /** Whether to show the search input */
   searchable?: boolean;
+  /** Whether sections can be collapsed */
   collapsible?: boolean;
+  /** Whether to show the copy button */
   showCopyButton?: boolean;
+  /** Whether to show version badges */
   showVersionBadges?: boolean;
+  /** Whether to show beta badges */
   showBetaBadges?: boolean;
+  /** Initial theme setting */
   initialTheme?: ThemeOption;
+  /** Initial section spacing */
   initialSpacing?: SpacingOption;
+  /** Initial prop spacing */
   initialPropSpacing?: PropSpacingOption;
+  /** Callback when a prop is clicked */
   onPropClick?: (propName: string) => void;
+  /** Custom badges configuration */
   customBadges?: Record<string, {
     text: string;
     className: string;

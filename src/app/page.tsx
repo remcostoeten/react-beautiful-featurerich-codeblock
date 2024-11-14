@@ -450,7 +450,7 @@ export default function CodeBlockDocs() {
               code display component. Simple, easy to use and understand API
               design with a "own your own" approach. NPM package will be
               avaialable soon, but for now you can copy the code from the repo
-              or run the *highly experimental* installation script below.
+              or run the *highly experimental* installation script below.<br/><span className="flex  gap-2  font-semibold">Btw, the <a className="underline" href='#props'>beautiful props table</a> is is also made by me and open source with a decent API<div className="animate-pulse">👀</div></span>
               <span>
                 Created by{" "}
                 <a
@@ -589,7 +589,9 @@ export default function CodeBlockDocs() {
           <InstallationSection />
 
           {/* API Reference Section */}
-          <ApiReferenceSection />
+          <div id="props">
+            <ApiReferenceSection />
+          </div>
 
           {/* Usage Examples Section */}
           <section className="text-left">

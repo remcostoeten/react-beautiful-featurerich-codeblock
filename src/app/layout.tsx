@@ -63,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-b from-zinc-900 to-zinc-800 antialiased `}
       >

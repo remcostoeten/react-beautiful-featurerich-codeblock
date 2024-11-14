@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { config } from './core/config';
+import { config } from "./core/config";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -16,12 +16,20 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: config.applicationName,
-  description: "A modern, feature-rich code block component with syntax highlighting and interactive features",
+  description:
+    "A modern, feature-rich code block component with syntax highlighting and interactive features",
   authors: [{ name: config.author }],
-  keywords: ["code block", "syntax highlighting", "react", "next.js", "typescript"],
+  keywords: [
+    "code block",
+    "syntax highlighting",
+    "react",
+    "next.js",
+    "typescript",
+  ],
   openGraph: {
     title: config.applicationName,
-    description: "A modern, feature-rich code block component with syntax highlighting and interactive features",
+    description:
+      "A modern, feature-rich code block component with syntax highlighting and interactive features",
     url: config.website,
     siteName: config.applicationName,
     images: [
@@ -37,7 +45,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: config.applicationName,
-    description: "A modern, feature-rich code block component with syntax highlighting and interactive features",
+    description:
+      "A modern, feature-rich code block component with syntax highlighting and interactive features",
     creator: `@${config.githubHandle}`,
   },
   icons: {
@@ -54,12 +63,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" scroll-behavior="smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-red-400 antialiased `}
+        className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-b from-zinc-900 to-zinc-800 antialiased `}
       >
         {children}
-
       </body>
     </html>
   );

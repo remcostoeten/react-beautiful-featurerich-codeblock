@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { ExternalLink, Github } from 'lucide-react'
-import { useState } from 'react'
-import { Button } from '../code-block/button'
-import { CodeBlock } from '../code-block/code-block'
-import { CodeBlockCreator } from './block-creator'
+import { ExternalLink, Github } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../code-block/button";
+import { CodeBlock } from "../code-block/code-block";
+import { CodeBlockCreator } from "./block-creator";
 
 export function CodeBlockShowcase() {
-  const [activeTab, setActiveTab] = useState('typescript')
+  const [activeTab, setActiveTab] = useState("typescript");
   const [searchDemo, setSearchDemo] = useState<{
     query: string;
     results: number[];
@@ -109,7 +109,7 @@ WHERE
     e.salary > 50000
 ORDER BY e.last_name;
     `,
-  }
+  };
 
   return (
     <div className="space-y-12">
@@ -122,7 +122,12 @@ ORDER BY e.last_name;
           <Button
             variant="link"
             className="flex items-center space-x-2"
-            onClick={() => window.open('https://github.com/remcostoeten/beautifull-code-block', '_blank')}
+            onClick={() =>
+              window.open(
+                "https://github.com/remcostoeten/beautifull-code-block",
+                "_blank",
+              )
+            }
           >
             <Github size={16} />
             <span>View on GitHub</span>
@@ -130,7 +135,12 @@ ORDER BY e.last_name;
           <Button
             variant="secondary"
             className="flex items-center space-x-2"
-            onClick={() => window.open('https://www.npmjs.com/package/beautifull-code-block', '_blank')}
+            onClick={() =>
+              window.open(
+                "https://www.npmjs.com/package/beautifull-code-block",
+                "_blank",
+              )
+            }
           >
             <ExternalLink size={16} />
             <span>View on npm</span>
@@ -147,8 +157,8 @@ ORDER BY e.last_name;
                 key={language}
                 className={`px-4 py-2 rounded-md font-medium ${
                   activeTab === language
-                    ? 'bg-zinc-800 text-white'
-                    : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
+                    ? "bg-zinc-800 text-white"
+                    : "bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
                 }`}
                 onClick={() => setActiveTab(language)}
               >
@@ -165,7 +175,8 @@ ORDER BY e.last_name;
           />
           {searchDemo.query && (
             <p className="mt-4">
-              Search results for &quot;{searchDemo.query}&quot;: {searchDemo.results.join(', ')}
+              Search results for &quot;{searchDemo.query}&quot;:{" "}
+              {searchDemo.results.join(", ")}
             </p>
           )}
         </div>
@@ -175,5 +186,5 @@ ORDER BY e.last_name;
         </div>
       </div>
     </div>
-  )
+  );
 }

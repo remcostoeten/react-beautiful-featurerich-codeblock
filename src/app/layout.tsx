@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { config } from "./core/config";
+import { appConfig } from "../core/config";
 import "./globals.css";
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "../core/fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "../core/fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
 
 export const metadata: Metadata = {
-  title: config.applicationName,
+  title: appConfig.applicationName,
   description:
     "A modern, feature-rich code block component with syntax highlighting and interactive features",
-  authors: [{ name: config.author }],
+  authors: [{ name: appConfig.author }],
   keywords: [
     "code block",
     "syntax highlighting",
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
     "typescript",
   ],
   openGraph: {
-    title: config.applicationName,
+    title: appConfig.applicationName,
     description:
       "A modern, feature-rich code block component with syntax highlighting and interactive features",
-    url: config.website,
-    siteName: config.applicationName,
+    url: appConfig.website,
+    siteName: appConfig.applicationName,
     images: [
       {
-        url: `${config.website}/og-image.png`,
+        url: `${appConfig.website}/og-image.png`,
         width: 1200,
         height: 630,
       },
@@ -44,17 +44,17 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: config.applicationName,
+    title: appConfig.applicationName,
     description:
       "A modern, feature-rich code block component with syntax highlighting and interactive features",
-    creator: `@${config.githubHandle}`,
+    creator: `@${appConfig.githubHandle}`,
   },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
-  manifest: `${config.website}/site.webmanifest`,
+  manifest: `${appConfig.website}/site.webmanifest`,
 };
 
 export default function RootLayout({
@@ -64,7 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" scroll-behavior="smooth">
-      <body
+      <body suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-b from-zinc-900 to-zinc-800 antialiased `}
       >
         {children}

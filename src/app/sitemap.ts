@@ -1,10 +1,10 @@
 import { MetadataRoute } from "next";
-import { config } from "./core/config";
+import { appConfig } from "../core/config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: config.website,
+      url: appConfig.website,
       lastModified: new Date(),
     },
   ];

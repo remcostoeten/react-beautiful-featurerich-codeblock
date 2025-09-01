@@ -80,6 +80,42 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+/* Custom badge styles */
+@layer components {
+  .badge-custom {
+    @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white border border-pink-500/30;
+  }
+  
+  .badge-custom:hover {
+    @apply from-pink-400 to-purple-400 border-pink-400/40;
+  }
+  
+  /* Additional custom badge variations */
+  .badge-neon {
+    @apply bg-gradient-to-r from-cyan-400 to-blue-500 text-black border border-cyan-400/50 shadow-lg shadow-cyan-400/25;
+  }
+  
+  .badge-neon:hover {
+    @apply from-cyan-300 to-blue-400 shadow-cyan-300/30;
+  }
+  
+  .badge-fire {
+    @apply bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 text-white border border-orange-500/40;
+  }
+  
+  .badge-fire:hover {
+    @apply from-orange-400 via-red-400 to-yellow-400;
+  }
+  
+  .badge-ocean {
+    @apply bg-gradient-to-r from-blue-600 via-blue-500 to-teal-400 text-white border border-blue-500/40;
+  }
+  
+  .badge-ocean:hover {
+    @apply from-blue-500 via-blue-400 to-teal-300;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

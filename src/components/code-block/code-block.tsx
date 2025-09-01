@@ -59,17 +59,26 @@ type BadgeVariant =
 type TBadgeProps = {
   variant?: BadgeVariant;
   customColor?: string | undefined;
+  customClass?: string | undefined;
 };
 
 function getBadgeClasses({
   variant = "default",
   customColor,
+  customClass,
 }: TBadgeProps): string {
   const baseClasses =
     "px-2 py-0.5 text-xs font-medium rounded-full transition-all duration-200";
 
-  if (variant === "custom" && customColor) {
-    return `${baseClasses} border border-${customColor}-500/30 bg-${customColor}-500/10 text-${customColor}-400 hover:border-${customColor}-400 hover:text-${customColor}-300`;
+  if (variant === "custom") {
+    if (customClass) {
+      return `${baseClasses} ${customClass}`;
+    }
+    if (customColor) {
+      return `${baseClasses} border border-${customColor}-500/30 bg-${customColor}-500/10 text-${customColor}-400 hover:border-${customColor}-400 hover:text-${customColor}-300`;
+    }
+    // Default custom styling (gradient from pink to purple)
+    return `${baseClasses} badge-custom`;
   }
 
   switch (variant) {
@@ -91,6 +100,7 @@ function getBadgeClasses({
 type Badge = {
   text: string;
   variant: BadgeVariant;
+  customClass?: string;
 };
 
 export type CodeBlockProps = {
@@ -404,6 +414,7 @@ export function CodeBlock({
                   className={getBadgeClasses({
                     variant: badge.variant || badgeVariant,
                     customColor: badgeColor,
+                    customClass: badge.customClass,
                   })}
                 >
                   {badge.text}

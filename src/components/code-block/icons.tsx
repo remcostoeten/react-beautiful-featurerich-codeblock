@@ -1,6 +1,6 @@
 "use client";
 
-import { TIconProps } from "@/app/core/types";
+import { TIconProps } from "@/core/types";
 
 const DEFAULT_ICON_SIZE = 16;
 

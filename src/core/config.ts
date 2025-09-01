@@ -1,4 +1,4 @@
-export const config = {
+export const appConfig = {
   applicationName: "CodeBlock",
   author: "Remco Stoeten",
   repositoryLink: "https://github.com/remcostoeten/beautifull-code-block",

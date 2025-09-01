@@ -10,6 +10,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/docs/tabs";
+import { UsageExamples } from "@/components/usage-examples";
 import { Github } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -434,6 +435,8 @@ export default function CodeBlockDocs() {
 
   return (
     <div className="min-h-screen bg-black text-gray-200">
+     
+     <UsageExamples />
       <div
         className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"
         aria-hidden="true"
@@ -505,6 +508,12 @@ export default function CodeBlockDocs() {
                 >
                   Badges
                 </TabsTrigger>
+                <TabsTrigger
+                  value="custom-badges"
+                  className="data-[state=active]:bg-gray-700"
+                >
+                  Custom Badges
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="search">
@@ -569,6 +578,110 @@ export default function CodeBlockDocs() {
                     ]}
                     showLineNumbers
                   />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="custom-badges">
+                <div className="space-y-6">
+                  <p className="text-sm text-gray-400">
+                    Create completely custom badge styles using CSS classes. 
+                    These examples show how to add gradient backgrounds, shadows, 
+                    and other visual effects to your badges.
+                  </p>
+                  
+                  {/* Default custom badge */}
+                  <div>
+                    <h5 className="text-lg font-medium mb-2 text-neutral-200">Default Custom Badge</h5>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Uses the built-in .badge-custom class (pink to purple gradient)
+                    </p>
+                    <CodeBlock
+                      code={`// In your CSS or Tailwind config
+.badge-custom {
+  @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white;
+}
+
+// In your component
+<CodeBlock
+  code={myCode}
+  badges={[
+    { text: 'Custom', variant: 'custom' }
+  ]}
+/>`}
+                      language="jsx"
+                      badges={[
+                        { text: "Custom", variant: "custom" },
+                        { text: "Gradient", variant: "primary" }
+                      ]}
+                      showLineNumbers
+                    />
+                  </div>
+
+                  {/* Custom class examples */}
+                  <div>
+                    <h5 className="text-lg font-medium mb-2 text-neutral-200">Custom Class Examples</h5>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Use the customClass property to apply your own CSS classes
+                    </p>
+                    <CodeBlock
+                      code={`// Multiple custom badge styles
+const customBadges = [
+  { text: 'Neon', variant: 'custom', customClass: 'badge-neon' },
+  { text: 'Fire', variant: 'custom', customClass: 'badge-fire' },
+  { text: 'Ocean', variant: 'custom', customClass: 'badge-ocean' }
+];
+
+<CodeBlock
+  code={sourceCode}
+  language="typescript"
+  badges={customBadges}
+  showLineNumbers
+/>`}
+                      language="tsx"
+                      badges={[
+                        { text: "Neon", variant: "custom", customClass: "badge-neon" },
+                        { text: "Fire", variant: "custom", customClass: "badge-fire" },
+                        { text: "Ocean", variant: "custom", customClass: "badge-ocean" },
+                        { text: "Default Custom", variant: "custom" }
+                      ]}
+                      showLineNumbers
+                    />
+                  </div>
+
+                  {/* CSS for custom badges */}
+                  <div>
+                    <h5 className="text-lg font-medium mb-2 text-neutral-200">CSS Implementation</h5>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Add these styles to your globals.css to create the custom badge effects
+                    </p>
+                    <CodeBlock
+                      code={`/* Custom badge styles */
+@layer components {
+  .badge-custom {
+    @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white border border-pink-500/30;
+  }
+  
+  .badge-neon {
+    @apply bg-gradient-to-r from-cyan-400 to-blue-500 text-black border border-cyan-400/50 shadow-lg shadow-cyan-400/25;
+  }
+  
+  .badge-fire {
+    @apply bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 text-white border border-orange-500/40;
+  }
+  
+  .badge-ocean {
+    @apply bg-gradient-to-r from-blue-600 via-blue-500 to-teal-400 text-white border border-blue-500/40;
+  }
+}`}
+                      language="css"
+                      fileName="globals.css"
+                      badges={[
+                        { text: "CSS", variant: "secondary" },
+                        { text: "Tailwind", variant: "primary" }
+                      ]}
+                      showLineNumbers
+                    />
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>

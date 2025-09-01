@@ -1040,10 +1040,10 @@ type PropTableRowProps = {
   showBetaBadges: boolean;
   copiedProp: string | null;
   onCopy: (text: string, propName: string) => void;
-  customBadges?: Record<string, { text: string; className: string; }>;
+  customBadges?: Record<string, { text: string; className: string; }> | undefined;
   theme: ThemeOption;
   columnWidths: ColumnWidth;
-}
+};
 
 function PropTableRow({
   prop,

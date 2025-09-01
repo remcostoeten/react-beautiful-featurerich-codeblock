@@ -56,15 +56,15 @@ type BadgeVariant =
   | "danger"
   | "custom";
 
-interface BadgeProps {
+type TBadgeProps = {
   variant?: BadgeVariant;
-  customColor?: string;
-}
+  customColor?: string | undefined;
+};
 
 function getBadgeClasses({
   variant = "default",
   customColor,
-}: BadgeProps): string {
+}: TBadgeProps): string {
   const baseClasses =
     "px-2 py-0.5 text-xs font-medium rounded-full transition-all duration-200";
 
@@ -282,15 +282,24 @@ export function CodeBlock({
     if (!isSearching) return null;
 
     return (
-      <div className="flex items-center gap-2 bg-[#111111] rounded-lg border border-[#333333] p-1 h-8">
+      <div 
+        className="flex items-center gap-2 bg-[#111111] rounded-lg border border-[#333333] p-1 h-8"
+        role="search"
+        aria-label="Code search"
+      >
         <div className="relative">
+          <label htmlFor="code-search-input" className="sr-only">
+            Search within code block
+          </label>
           <input
+            id="code-search-input"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
-            className="w-40 px-2 py-1 text-sm bg-transparent text-zinc-300 focus:outline-none placeholder:text-zinc-600"
+            className="w-40 px-2 py-1 text-sm bg-transparent text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#111111] placeholder:text-zinc-600"
             autoFocus
+            aria-describedby={searchResults.length > 0 ? "search-results-status" : undefined}
           />
           {searchQuery && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">

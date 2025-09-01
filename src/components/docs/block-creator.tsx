@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "../code-block/button";
 import { CodeBlock } from "../code-block/code-block";
 import * as Icons from "../code-block/icons";
@@ -26,7 +26,7 @@ type SupportedLanguage =
 const languageOptions: {
   value: SupportedLanguage;
   label: string;
-  icon: JSX.Element;
+  icon: React.ReactElement;
 }[] = [
   {
     value: "javascript",

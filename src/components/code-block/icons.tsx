@@ -1,12 +1,13 @@
 "use client";
 
-import { IconProps } from "@/app/core/types";
+import { TIconProps } from "@/app/core/types";
+
 const DEFAULT_ICON_SIZE = 16;
 
 export function SqlLogo({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +53,7 @@ export function SqlLogo({
   );
 }
 
-export function RustIcon({ className = "" }: IconProps) {
+export function RustIcon({ className = "" }: TIconProps) {
   return (
     <svg
       className={className}
@@ -73,7 +74,7 @@ export function RustIcon({ className = "" }: IconProps) {
 export function TypescriptIcon({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       className={className}
@@ -96,7 +97,7 @@ export function TypescriptIcon({
 export function ReactIcon({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       className={className}
@@ -118,7 +119,7 @@ export function ReactIcon({
 export function MdxIcon({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       className={className}
@@ -147,7 +148,7 @@ export function MdxIcon({
 export function PythonIcon({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       className={className}
@@ -196,7 +197,7 @@ export function PythonIcon({
 export function JavascriptIcon({
   className = "",
   size = DEFAULT_ICON_SIZE,
-}: IconProps) {
+}: TIconProps) {
   return (
     <svg
       className={className}

@@ -1,4 +1,4 @@
-export interface CodeBlockProps {
+export type TCodeBlockProps = {
   code: string;
   fileName?: string;
   language: string;
@@ -11,9 +11,9 @@ export interface CodeBlockProps {
   onCopy?: (code: string) => void;
   onLineClick?: (lineNumber: number) => void;
   onSearch?: (query: string, results: number[]) => void;
-}
+};
 
-export interface IconProps {
+export type TIconProps = {
   className?: string;
   size?: number;
-}
+};

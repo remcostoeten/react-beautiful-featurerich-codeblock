@@ -1,38 +1,13 @@
 /**
- * Beautiful Code Block Component - Ultra Optimized
+ * @author Remco Stoeten
+ * @name  Beautiful Code Block 
  * 
- * A feature-rich, ultra-optimized code display component for React/Next.js applications
- * with syntax highlighting, search functionality, keyboard shortcuts, and custom badges.
- * 
- * Features:
- * • Syntax highlighting for 100+ languages
- * • Interactive search with Cmd/Ctrl+F
- * • Line highlighting and click callbacks
- * • Copy to clipboard with Cmd/Ctrl+C
- * • Collapsible code blocks with smooth animations
- * • Custom badge system with variants
- * • Keyboard shortcuts and accessibility support
- * 
- * Ultra Optimizations:
- * • Zero unnecessary dependencies (removed Radix Slot, CVA, tailwind-merge)
- * • Simplified language icons (95% smaller than original SVGs)
- * • Condensed theme and animation configuration  
- * • Streamlined button and badge systems
- * • Manual className merging instead of heavy utility libraries
- * 
- * Dependencies:
- * REQUIRED: framer-motion, lucide-react, react-syntax-highlighter, clsx
- * REMOVED: @radix-ui/react-slot, class-variance-authority, tailwind-merge
- * 
- * Installation:
- * 1. Install dependencies: framer-motion lucide-react react-syntax-highlighter clsx
- * 2. Copy this file to your components directory  
- * 3. Import and use: import { CodeBlock } from './beautiful-code-block-ultra-optimized'
- * 
- * @author Remco Stoeten (@remcostoeten)
- */
+ * @description 
+ * A feature-rich, performant, accessible code-block render component, which probably is the most beautiful you'll see.
+ * 110+ languages, search highlight, programatic line highlighting, per-language icons, custom labels/themes, copy button, kbd-shortcuts
+*/
 
-"use client";
+'use client';
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -60,19 +35,19 @@ import type { CSSProperties } from "react";
 const cn = (...inputs: ClassValue[]) => {
   const classes = clsx(inputs).split(' ');
   const merged = new Map<string, string>();
-  
+
   // Simple deduplication for common conflicting classes
   for (const cls of classes) {
     if (!cls) continue;
-    
+
     // Handle responsive variants and state variants
     const baseClass = cls.replace(/^(sm|md|lg|xl|2xl|hover|focus|active|disabled):/, '');
     const prefix = cls.match(/^(sm|md|lg|xl|2xl|hover|focus|active|disabled):/)?.[1] || '';
     const key = prefix ? `${prefix}:${baseClass.split('-')[0]}` : baseClass.split('-')[0];
-    
+
     merged.set(key, cls);
   }
-  
+
   return Array.from(merged.values()).join(' ');
 };
 
@@ -197,13 +172,13 @@ const ICON_DATA = {
 } as const;
 
 // Lightweight icon component using CSS instead of SVG
-function SimpleIcon({ 
-  language, 
-  className = "", 
-  size = DEFAULT_ICON_SIZE 
+function SimpleIcon({
+  language,
+  className = "",
+  size = DEFAULT_ICON_SIZE
 }: TIconProps & { language: string }) {
   const iconInfo = ICON_DATA[language.toLowerCase() as keyof typeof ICON_DATA];
-  
+
   if (!iconInfo) {
     return <DefaultIcon size={size} className={className} />;
   }
@@ -273,7 +248,7 @@ interface TButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 // Simple button class generator - replaces CVA
 const getButtonClasses = (variant: TButtonVariant = "default", size: TButtonSize = "default") => {
   const base = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
-  
+
   const variants = {
     default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
     destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
@@ -293,16 +268,16 @@ const getButtonClasses = (variant: TButtonVariant = "default", size: TButtonSize
   return cn(base, variants[variant], sizes[size]);
 };
 
-const Button = memo(function Button({ 
-  className, 
-  variant = "default", 
-  size = "default", 
-  ...props 
+const Button = memo(function Button({
+  className,
+  variant = "default",
+  size = "default",
+  ...props
 }: TButtonProps) {
   return (
-    <button 
-      className={cn(getButtonClasses(variant, size), className)} 
-      {...props} 
+    <button
+      className={cn(getButtonClasses(variant, size), className)}
+      {...props}
     />
   );
 });
@@ -370,9 +345,9 @@ type TBadgeProps = {
 
 const getBadgeClasses = ({ variant = "default", customColor, customClass }: TBadgeProps): string => {
   const base = "px-2 py-0.5 text-xs font-medium rounded-full transition-all duration-200";
-  
+
   if (variant === "custom") {
-    return customClass 
+    return customClass
       ? cn(base, customClass)
       : cn(base, "bg-gradient-to-r from-pink-500 to-purple-500 text-white border border-pink-500/30");
   }
@@ -578,7 +553,7 @@ export function CodeBlock({
     if (!isSearching) return null;
 
     return (
-      <div 
+      <div
         className="flex items-center gap-2 bg-[#111111] rounded-lg border border-[#333333] p-1 h-8"
         role="search"
         aria-label="Code search"

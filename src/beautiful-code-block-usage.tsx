@@ -7,7 +7,7 @@
 
 "use client";
 
-import { CodeBlock } from "./beautiful-code-block";
+import { CodeBlock } from "./v2-single-file/beautiful-code-block-single-file";
 
 // Example code snippets
 const codeExamples = {

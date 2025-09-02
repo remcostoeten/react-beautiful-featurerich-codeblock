@@ -110,17 +110,17 @@ export function FeatureShowcase() {
 
   return (
     <section id="feature-showcase" className="text-left">
-      <h3 className="text-2xl font-semibold mb-6 text-neutral-200">
+      <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-neutral-200">
         Feature Showcase
       </h3>
       <div className="w-full">
-        <div className="bg-gray-800 p-1 rounded-lg mb-4 flex">
+        <div className="bg-gray-100 border border-gray-200 dark:bg-gray-800 dark:border-gray-700 p-1 rounded-lg mb-4 flex">
           <button
             onClick={() => setActiveTab("search")}
             className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
               activeTab === "search"
-                ? "bg-gray-700 text-white"
-                : "text-gray-300 hover:text-white"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
             }`}
           >
             Search
@@ -129,8 +129,8 @@ export function FeatureShowcase() {
             onClick={() => setActiveTab("file-name")}
             className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
               activeTab === "file-name"
-                ? "bg-gray-700 text-white"
-                : "text-gray-300 hover:text-white"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
             }`}
           >
             File Name
@@ -139,8 +139,8 @@ export function FeatureShowcase() {
             onClick={() => setActiveTab("badges")}
             className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
               activeTab === "badges"
-                ? "bg-gray-700 text-white"
-                : "text-gray-300 hover:text-white"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
             }`}
           >
             Badges
@@ -149,7 +149,7 @@ export function FeatureShowcase() {
 
         {activeTab === "search" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               This demo shows the search functionality in action. The
               search box is pre-filled with "return userData"
               and the matching line is highlighted.
@@ -163,12 +163,12 @@ export function FeatureShowcase() {
               initialSearchQuery={searchDemoQuery}
               initialSearchResults={searchDemoResults}
             />
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               Search query:{" "}
-              <span className="text-white">{searchDemoQuery}</span>
+              <span className="text-gray-900 font-medium dark:text-white">{searchDemoQuery}</span>
               <br />
               Matching lines:{" "}
-              <span className="text-white">
+              <span className="text-gray-900 font-medium dark:text-white">
                 {searchDemoResults.join(", ")}
               </span>
             </div>
@@ -177,7 +177,7 @@ export function FeatureShowcase() {
 
         {activeTab === "file-name" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Display a file name at the top of the code block for better
               context.
             </p>
@@ -192,7 +192,7 @@ export function FeatureShowcase() {
 
         {activeTab === "badges" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Add badges to categorize or provide additional context to
               your code blocks.
             </p>

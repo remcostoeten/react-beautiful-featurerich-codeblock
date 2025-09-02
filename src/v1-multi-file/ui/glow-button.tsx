@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/components/code-block/cn";
+import { cn } from "@/v1-multi-file/code-block/cn";
 
 interface GlowButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

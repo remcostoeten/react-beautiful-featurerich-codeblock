@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { CodeBlock } from "./beautiful-code-block-ultra-optimized";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { CodeBlock } from "./beautiful-code-block-single-file";
+
 import { 
   Zap, 
   Package, 
@@ -19,6 +16,8 @@ import {
   ExternalLink,
   CheckCircle
 } from "lucide-react";
+import { Badge } from "@/v1-multi-file/code-block/badge";
+import { Button } from "@/v1-multi-file/code-block/button";
 
 /**
  * Beautiful Code Block Demo for 21.dev
@@ -586,7 +585,7 @@ func main() {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card>
+          <>
             <CardHeader className="pb-3">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
                 <Search className="w-5 h-5 text-blue-600" />
@@ -598,7 +597,7 @@ func main() {
                 Built-in search with Cmd/Ctrl+F, highlighting matches, and keyboard navigation
               </CardDescription>
             </CardContent>
-          </Card>
+          </>
 
           <Card>
             <CardHeader className="pb-3">

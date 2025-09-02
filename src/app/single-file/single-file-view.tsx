@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/code-block/button";
-import { CodeBlock } from "@/components/code-block/code-block";
+import { Button } from "@/v1-multi-file/code-block/button";
+import { CodeBlock } from "@/v1-multi-file/code-block/code-block";
 import { Github, Download, ExternalLink, Zap, FileText, Layers } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

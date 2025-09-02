@@ -7,19 +7,22 @@ type BadgeVariant =
   | "success"
   | "warning"
   | "danger"
-  | "custom";
+  | "custom"
+  | "outline";
 
-interface BadgeProps {
+type TProps =    {
   variant?: BadgeVariant;
   customColor?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 export function Badge({
   variant = "default",
   customColor,
   children,
-}: BadgeProps) {
+  className,
+}: TProps) {
   const baseClasses =
     "px-2 py-0.5 text-xs font-medium rounded-full transition-all duration-200";
 
@@ -36,12 +39,14 @@ export function Badge({
       "border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:border-yellow-400 hover:text-yellow-300",
     danger:
       "border border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-400 hover:text-red-300",
+    outline:
+      "border border-gray-500/30 bg-gray-500/10 text-gray-400 hover:border-gray-400 hover:text-gray-300",
     custom: customColor
       ? `border border-${customColor}-500/30 bg-${customColor}-500/10 text-${customColor}-400 hover:border-${customColor}-400 hover:text-${customColor}-300`
       : "",
   };
 
   return (
-    <span className={cn(baseClasses, variantClasses[variant])}>{children}</span>
+    <span className={cn(baseClasses, variantClasses[variant], className)}>{children}</span>
   );
 }

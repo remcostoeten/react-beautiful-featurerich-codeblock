@@ -1,15 +1,15 @@
 "use client";
 
-import PropsTable from "@/components/api-renderer";
-import { Button } from "@/components/code-block/button";
-import { CodeBlock } from "@/components/code-block/code-block";
-import { CodeBlockCreator } from "@/components/docs/block-creator";
+import PropsTable from "@/v1-multi-file/api-renderer";
+import { Button } from "@/v1-multi-file/code-block/button";
+import { CodeBlock } from "@/v1-multi-file/code-block/code-block";
+import { CodeBlockCreator } from "@/v1-multi-file/docs/block-creator";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/docs/tabs";
+} from "@/v1-multi-file/docs/tabs";
 import { Github, FileText } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 

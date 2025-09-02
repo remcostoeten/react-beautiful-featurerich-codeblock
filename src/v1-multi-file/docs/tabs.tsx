@@ -3,7 +3,7 @@
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
 
-import { cn } from "@/components/code-block/cn";
+import { cn } from "@/v1-multi-file/code-block/cn";
 const Tabs = TabsPrimitive.Root;
 
 const TabsList = React.forwardRef<

@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+
+# Google Bot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://code-block.remcostoeten.com/sitemap.xml
+
+# Block access to private directories
+Disallow: /.git/
+Disallow: /.next/
+Disallow: /node_modules/
+Disallow: /_next/static/
+Disallow: /api/
+
+# Allow access to assets
+Allow: /_next/static/
+Allow: /favicon.ico
+Allow: /apple-touch-icon.png
+Allow: /og-image.png

@@ -20,10 +20,13 @@ import {
   COPY_VARIANTS,
   TOAST_VARIANTS,
 } from "./animations";
+import { BadgeCarousel } from "./badge-carousel";
 import { Button } from "./button";
+import { shouldUseCarousel } from "./carousel-utils";
 import { cn } from "./cn";
 import { customTheme } from "./custom-theme";
 import * as Icons from "./icons";
+import { useResizeObserver } from "./use-resize-observer";
 
 function getLanguageIcon(language: string) {
   switch (language.toLowerCase()) {
@@ -158,6 +161,7 @@ export function CodeBlock({
   );
   const [stats] = useState(calculateCodeStats(code));
   const codeRef = useRef<HTMLDivElement>(null);
+  const [badgeContainerRef, { width: badgeContainerWidth }] = useResizeObserver<HTMLDivElement>();
 
   const scrollToLine = useCallback((lineNumber: number) => {
     if (!codeRef.current) return;
@@ -407,19 +411,34 @@ export function CodeBlock({
                 </span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              {badges.map((badge, index) => (
-                <span
-                  key={index}
-                  className={getBadgeClasses({
-                    variant: badge.variant || badgeVariant,
-                    customColor: badgeColor,
-                    customClass: badge.customClass,
+            <div ref={badgeContainerRef} className="flex items-center gap-2">
+              {badges.length > 0 && shouldUseCarousel(badges.length, badgeContainerWidth) ? (
+                <BadgeCarousel
+                  badges={badges}
+                  getBadgeClasses={(props) => getBadgeClasses({
+                    variant: props.variant as BadgeVariant,
+                    customColor: props.customColor,
+                    customClass: props.customClass,
                   })}
-                >
-                  {badge.text}
-                </span>
-              ))}
+                  badgeVariant={badgeVariant}
+                  badgeColor={badgeColor}
+                  autoScroll={true}
+                  scrollInterval={4000}
+                />
+              ) : (
+                badges.map((badge, index) => (
+                  <span
+                    key={index}
+                    className={getBadgeClasses({
+                      variant: badge.variant || badgeVariant,
+                      customColor: badgeColor,
+                      customClass: badge.customClass,
+                    })}
+                  >
+                    {badge.text}
+                  </span>
+                ))
+              )}
               {showMetaInfo && (
                 <span className="px-2 py-0.5 text-xs font-medium text-zinc-500">
                   {stats.lines} lines • {stats.words} words

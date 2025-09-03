@@ -1,7 +1,6 @@
 "use client";
 
 import { CodeBlock } from "@/components/code-block"
-import { Sun, Moon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const themeClasses = {
@@ -94,7 +93,7 @@ FROM subordinates
 ORDER BY level, first_name, last_name;`,
 };
 
-export default function CodeBlockShowcaseView() {
+export function CodeBlockView() {
   const [activeTab, setActiveTab] = useState("search");
   const [searchDemoQuery, setSearchDemoQuery] = useState("return userData");
   const [searchDemoResults, setSearchDemoResults] = useState<number[]>([]);

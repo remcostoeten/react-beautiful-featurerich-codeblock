@@ -1,11 +1,11 @@
-import FileExplorerDemoView from "@/components/file-explorer-demo-view";
+import { CodeBlockView } from "@/components/code-block-view";
 
 export const metadata = {
-  title: "File Explorer with Context Menu - Beautiful Code Block Component",
-  description: "Showcase of a beautiful file explorer with configurable context menus and code block integration.",
+  title: "Beautiful Code Block Component",
+  description: "Showcase of a beautiful, syntax-highlighted code block component with copy functionality and theme support.",
 };
 
-export default function SingleFilePage() {
-  return <FileExplorerDemoView />;
+export default function HomePage() {
+  return <CodeBlockView />;
 }
 

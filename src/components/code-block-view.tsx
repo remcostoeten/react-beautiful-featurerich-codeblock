@@ -1,13 +1,15 @@
 "use client";
 
 import { CodeBlock } from "@/components/code-block"
+import { MultiFileCodeBlock } from "@/components/multi-file-code-block"
+import { DiffCodeBlock } from "@/components/diff-code-block"
 import { useCallback, useEffect, useState } from "react";
 
 const themeClasses = {
   title: "text-gray-900 dark:text-neutral-200",
-  tabContainer: "bg-gray-100 border border-gray-200 dark:bg-gray-800 dark:border-gray-700",
-  tabActive: "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white",
-  tabInactive: "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600",
+  tabContainer: "dark:bg-[#0A0A0A] border dark:border-[#333]",
+  tabActive: "bg-white text-gray-900 shadow-sm dark:bg-[#bbb]/10 dark:text-white",
+  tabInactive: "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-[#0A0A0A]",
   description: "text-gray-600 dark:text-gray-400",
   highlight: "text-gray-900 font-medium dark:text-white",
 };
@@ -146,6 +148,33 @@ export function CodeBlockView() {
           >
             Badges
           </button>
+          <button
+            onClick={() => setActiveTab("hover")}
+            className={`px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === "hover"
+              ? themeClasses.tabActive
+              : themeClasses.tabInactive
+              }`}
+          >
+            Hover Highlight
+          </button>
+          <button
+            onClick={() => setActiveTab("multi-file")}
+            className={`px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === "multi-file"
+              ? themeClasses.tabActive
+              : themeClasses.tabInactive
+              }`}
+          >
+            Multi-file
+          </button>
+          <button
+            onClick={() => setActiveTab("diff")}
+            className={`px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === "diff"
+              ? themeClasses.tabActive
+              : themeClasses.tabInactive
+              }`}
+          >
+            Diff View
+          </button>
         </div>
 
         {activeTab === "search" && (
@@ -210,6 +239,214 @@ export function CodeBlockView() {
             />
           </div>
         )}
+
+        {activeTab === "hover" && (
+          <div className="space-y-4">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Hover over any line to see smooth highlighting. This feature works
+              alongside click highlighting and search results with proper precedence.
+            </p>
+            <CodeBlock
+              code={codeExamples.rust}
+              language="rust"
+              fileName="hover_demo.rs"
+              showLineNumbers
+              enableLineHover
+              enableLineHighlight
+              hoverHighlightColor="rgba(99, 102, 241, 0.1)"
+            />
+            <div className={`text-sm ${themeClasses.description}`}>
+              <span className={themeClasses.highlight}>Features:</span>
+              <br />
+              • Hover highlighting with smooth transitions (160ms)
+              <br />
+              • Custom hover color support
+              <br />
+              • Proper priority: Click &gt; Search &gt; Hover
+              <br />
+              • Performance optimized - only renders when enabled
+            </div>
+          </div>
+        )}
+
+        {activeTab === "multi-file" && (
+          <div className="space-y-4">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Switch between multiple related files with a tabbed interface.
+            </p>
+            <MultiFileCodeBlock
+              files={[
+                {
+                  name: "app.tsx",
+                  language: "typescript",
+                  code: `import { useState } from 'react';
+import { UserProfile } from './user-profile';
+import { Settings } from './settings';
+
+export function App() {
+  const [activeView, setActiveView] = useState('profile');
+  
+  return (
+    <div className="p-4">
+      {activeView === 'profile' ? <UserProfile /> : <Settings />}
+    </div>
+  );
+}`,
+                  badges: [{ text: "Component", variant: "primary" }],
+                },
+                {
+                  name: "user-profile.tsx",
+                  language: "typescript",
+                  code: `export function UserProfile() {
+  return (
+    <div className="space-y-4">
+      <h1>User Profile</h1>
+      <div className="grid gap-4">
+        <input type="text" placeholder="Name" />
+        <input type="email" placeholder="Email" />
+      </div>
+    </div>
+  );
+}`,
+                  badges: [{ text: "Component", variant: "secondary" }],
+                },
+                {
+                  name: "settings.tsx",
+                  language: "typescript",
+                  code: `export function Settings() {
+  return (
+    <div className="space-y-4">
+      <h1>Settings</h1>
+      <div className="grid gap-2">
+        <label className="flex items-center gap-2">
+          <input type="checkbox" />
+          Dark Mode
+        </label>
+      </div>
+    </div>
+  );
+}`,
+                  badges: [{ text: "Component", variant: "secondary" }],
+                },
+              ]}
+              showLineNumbers
+              enableLineHighlight
+            />
+          </div>
+        )}
+
+        {activeTab === "diff" && (
+          <div className="space-y-4">
+            <p className={`text-sm ${themeClasses.description}`}>
+              View code changes with additions and deletions highlighted.
+              Toggle between unified and split views.
+            </p>
+            <DiffCodeBlock
+              fileName="user-service.ts"
+              language="typescript"
+              oldCode={`import { User } from './types';
+import { database } from './database';
+
+// User service for managing user operations
+export class UserService {
+  private users: User[] = [];
+
+  constructor() {
+    this.loadUsers();
+  }
+
+  private async loadUsers() {
+    this.users = await database.getUsers();
+  }
+
+  function greeting(name: string) {
+    return 'Hello ' + name;
+  }
+
+  public async createUser(userData: Partial<User>): Promise<User> {
+    const newUser = {
+      id: Date.now(),
+      ...userData,
+      createdAt: new Date()
+    };
+    
+    this.users.push(newUser);
+    await database.saveUser(newUser);
+    return newUser;
+  }
+
+  greeting('world');
+
+  public getUserById(id: number): User | undefined {
+    return this.users.find(user => user.id === id);
+  }
+
+  public async deleteUser(id: number): Promise<boolean> {
+    const index = this.users.findIndex(user => user.id === id);
+    if (index === -1) return false;
+    
+    this.users.splice(index, 1);
+    await database.deleteUser(id);
+    return true;
+  }
+}`}
+              newCode={`import { User } from './types';
+import { database } from './database';
+import { Logger } from './logger';
+
+// User service for managing user operations
+export class UserService {
+  private users: User[] = [];
+  private logger = new Logger('UserService');
+
+  constructor() {
+    this.loadUsers();
+  }
+
+  private async loadUsers() {
+    this.users = await database.getUsers();
+    this.logger.info('Users loaded successfully');
+  }
+
+  function greeting(name: string, title?: string) {
+    const prefix = title ? title + ' ' : '';
+    return 'Hello ' + prefix + name + '!';
+  }
+
+  public async createUser(userData: Partial<User>): Promise<User> {
+    const newUser = {
+      id: Date.now(),
+      ...userData,
+      createdAt: new Date()
+    };
+    
+    this.users.push(newUser);
+    await database.saveUser(newUser);
+    this.logger.info('User created:', newUser.id);
+    return newUser;
+  }
+
+  greeting('world', 'Mr.');
+
+  public getUserById(id: number): User | undefined {
+    return this.users.find(user => user.id === id);
+  }
+
+  public async deleteUser(id: number): Promise<boolean> {
+    const index = this.users.findIndex(user => user.id === id);
+    if (index === -1) return false;
+    
+    this.users.splice(index, 1);
+    await database.deleteUser(id);
+    this.logger.info('User deleted:', id);
+    return true;
+  }
+}`}
+            />
+          </div>
+        )}
+
+
       </div>
     </section>
   );

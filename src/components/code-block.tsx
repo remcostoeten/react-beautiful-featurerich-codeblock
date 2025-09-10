@@ -52,7 +52,7 @@ import type { CSSProperties } from "react";
 // ============================================================================
 
 // Simple className merger - replaces twMerge with basic deduplication
-const cn = (...inputs: ClassValue[]) => {
+export const cn = (...inputs: ClassValue[]) => {
   const classes = clsx(inputs).split(' ');
   const merged = new Map<string, string>();
 
@@ -377,6 +377,8 @@ export type TBadge = {
   customClass?: string;
 };
 
+
+
 export type TCodeBlockProps = {
   /** The source code to display */
   code: string;
@@ -390,6 +392,10 @@ export type TCodeBlockProps = {
   showLineNumbers?: boolean;
   /** Enable interactive line highlighting (default: false) */
   enableLineHighlight?: boolean;
+  /** Enable hover highlighting for lines (default: false) */
+  enableLineHover?: boolean;
+  /** Custom color for hover highlighting (default: 'rgba(255, 255, 255, 0.1)' for dark, 'rgba(0, 0, 0, 0.05)' for light) */
+  hoverHighlightColor?: string;
   /** Show metadata like line count in header (default: true) */
   showMetaInfo?: boolean;
   /** Maximum height before scrolling (default: "400px") */
@@ -420,6 +426,12 @@ export type TCodeBlockProps = {
   enableAutoScroll?: boolean;
   /** Whether to show the language icon in header (default: false) */
   showIcon?: boolean;
+  /** Show bottom fade effect (default: true) */
+  showBottomFade?: boolean;
+  /** Custom width */
+  width?: string;
+  /** Custom height */
+  height?: string;
 };
 
 // ============================================================================
@@ -480,6 +492,8 @@ export function CodeBlock({
   badges = [],
   showLineNumbers = true,
   enableLineHighlight = false,
+  enableLineHover = false,
+  hoverHighlightColor,
   showMetaInfo = true,
   maxHeight = "400px",
   className,
@@ -495,8 +509,11 @@ export function CodeBlock({
   autoScrollSpeed = 20,
   enableAutoScroll = true,
   showIcon = false,
+  showBottomFade = true,
+  width,
+  height,
 }: TCodeBlockProps) {
-  // State management
+// State management
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -507,6 +524,7 @@ export function CodeBlock({
   const [highlightedLines, setHighlightedLines] = useState<number[]>(initialHighlightedLines);
   const [scrollPosition, setScrollPosition] = useState<'start' | 'middle' | 'end'>('start');
   const [isAutoScrolling, setIsAutoScrolling] = useState(enableAutoScroll);
+  const [hoveredLine, setHoveredLine] = useState<number | null>(null);
 
   // Theme detection
   const isDark = useIsDarkMode();
@@ -522,6 +540,39 @@ export function CodeBlock({
 
   // Memoized values
   const stats = useMemo(() => calculateCodeStats(code), [code]);
+
+  // Generate line background color based on state priority: clicked > search > hover
+  const getLineBackgroundColor = useCallback((lineNumber: number): string => {
+    // Priority 1: Click-highlighted lines (highest priority)
+    if (highlightedLines.includes(lineNumber)) {
+      return isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)";
+    }
+    
+    // Priority 2: Search results (medium priority)
+    if (searchResults.includes(lineNumber)) {
+      return isDark ? "rgba(59, 130, 246, 0.15)" : "rgba(59, 130, 246, 0.1)";
+    }
+    
+    // Priority 3: Hover state (lowest priority)
+    if (enableLineHover && hoveredLine === lineNumber) {
+      return hoverHighlightColor || (isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.03)");
+    }
+    
+    return "transparent";
+  }, [highlightedLines, searchResults, hoveredLine, enableLineHover, hoverHighlightColor, isDark]);
+
+  // Hover handlers
+  const handleLineMouseEnter = useCallback((lineNumber: number) => {
+    if (enableLineHover) {
+      setHoveredLine(lineNumber);
+    }
+  }, [enableLineHover]);
+
+  const handleLineMouseLeave = useCallback(() => {
+    if (enableLineHover) {
+      setHoveredLine(null);
+    }
+  }, [enableLineHover]);
 
   // Auto-scroll functionality for badges
   useEffect(() => {
@@ -840,7 +891,7 @@ export function CodeBlock({
 
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className)} style={{ width, height }}>
       <div
         className="group relative rounded-xl overflow-hidden bg-white dark:bg-[#0A0A0A] border border-zinc-200 dark:border-[#333333] w-full transition-all duration-200"
         onMouseEnter={() => setIsHovered(true)}
@@ -1015,41 +1066,47 @@ export function CodeBlock({
                   <div className="absolute left-0 top-0 bottom-0 w-[3.5rem] bg-gradient-to-r from-white via-white/50 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/50 dark:to-transparent pointer-events-none z-10" />
                 )}
 
-                <div className="p-4 overflow-y-auto" style={{ maxHeight }}>
-                  <SyntaxHighlighter
-                    language={language.toLowerCase()}
-                    style={isDark ? customTheme : customThemeLight}
-                    customStyle={{
-                      margin: 0,
-                      padding: 0,
-                      background: "transparent",
-                      fontSize: "0.875rem",
-                    }}
-                    showLineNumbers={showLineNumbers}
-                    lineNumberStyle={{
-                      color: isDark ? "#666666" : "#94a3b8",
-                      minWidth: "2.5em",
-                      paddingRight: "1em",
-                      textAlign: "right",
-                      userSelect: "none",
-                      opacity: isHovered ? 1 : 0.5,
-                      transition: "opacity 0.2s ease",
-                    }}
-                    wrapLines={true}
-                    wrapLongLines={true}
-                    lineProps={(lineNumber) => ({
-                      style: {
-                        display: "block",
-                        cursor: enableLineHighlight ? "pointer" : "default",
-                        backgroundColor: highlightedLines.includes(lineNumber)
-                          ? (isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")
-                          : "transparent",
-                      },
-                      onClick: () => handleLineClick(lineNumber),
-                    })}
-                  >
-                    {code}
-                  </SyntaxHighlighter>
+                <div className="relative">
+                  <div className="p-4 overflow-y-auto" style={{ maxHeight }}>
+                    <SyntaxHighlighter
+                      language={language.toLowerCase()}
+                      style={isDark ? customTheme : customThemeLight}
+                      customStyle={{
+                        margin: 0,
+                        padding: 0,
+                        background: "transparent",
+                        fontSize: "0.875rem",
+                      }}
+                      showLineNumbers={showLineNumbers}
+                      lineNumberStyle={{
+                        color: isDark ? "#666666" : "#94a3b8",
+                        minWidth: "2.5em",
+                        paddingRight: "1em",
+                        textAlign: "right",
+                        userSelect: "none",
+                        opacity: isHovered ? 1 : 0.5,
+                        transition: "opacity 0.2s ease",
+                      }}
+                      wrapLines={true}
+                      wrapLongLines={true}
+                      lineProps={(lineNumber) => ({
+                        style: {
+                          display: "block",
+                          cursor: enableLineHighlight || enableLineHover ? "pointer" : "default",
+                          backgroundColor: getLineBackgroundColor(lineNumber),
+                          transition: "background-color 0.16s ease",
+                        },
+                        onClick: () => handleLineClick(lineNumber),
+                        onMouseEnter: () => handleLineMouseEnter(lineNumber),
+                        onMouseLeave: handleLineMouseLeave,
+                      })}
+                    >
+                      {code}
+                    </SyntaxHighlighter>
+                  </div>
+                  {showBottomFade && (
+                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/80 dark:to-transparent pointer-events-none" />
+                  )}
                 </div>
               </div>
             </motion.div>

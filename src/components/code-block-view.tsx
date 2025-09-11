@@ -347,7 +347,7 @@ export function CodeBlockView() {
       </div>
       
       {/* Main Content */}
-      <div className="h-full flex items-center justify-center">
+      <div className="pt-20 h-full flex items-center justify-center">
         <div className="w-full max-w-4xl px-4">
 
         {activeTab === "search" && (

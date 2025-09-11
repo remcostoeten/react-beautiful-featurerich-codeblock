@@ -22,6 +22,9 @@ export type TMultiFileCodeBlockProps = {
   enableLineHighlight?: boolean;
   enableLineHover?: boolean;
   maxHeight?: string;
+  showInnerFileName?: boolean;
+  showMetaInfo?: boolean;
+  showIcon?: boolean;
 };
 
 export function MultiFileCodeBlock({
@@ -31,80 +34,52 @@ export function MultiFileCodeBlock({
   enableLineHighlight = false,
   enableLineHover = false,
   maxHeight = '400px',
+  showInnerFileName = false,
+  showMetaInfo = false,
+  showIcon = false,
 }: TMultiFileCodeBlockProps) {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
 
   return (
     <div className={cn('rounded-xl overflow-hidden border border-zinc-200 dark:border-[#333333] shadow-sm', className)}>
-      {/* Enhanced File Tabs */}
-      <div className="relative bg-gradient-to-r from-zinc-50 via-zinc-100 to-zinc-50 dark:from-[#111111] dark:via-[#0A0A0A] dark:to-[#111111] border-b border-zinc-200 dark:border-[#333333]">
-        <div className="flex overflow-x-auto scrollbar-hide whitespace-nowrap">
+      <div className="relative bg-white dark:bg-[#0A0A0A] border-b border-zinc-200 dark:border-[#333333]">
+        <div className="flex overflow-x-auto whitespace-nowrap">
           {files.map((file, index) => {
             const IconComponent = getLanguageIcon(file.language);
             const isActive = activeFileIndex === index;
-            
+            const base = 'relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors border-b-2 flex-shrink-0';
+            const activeCls = 'border-[var(--foreground)] text-[var(--foreground)]';
+            const inactiveCls = 'border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]';
             return (
               <button
                 key={file.name}
                 onClick={() => setActiveFileIndex(index)}
-                className={cn(
-                  'group relative flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                  'hover:bg-white/60 dark:hover:bg-[#0A0A0A]/60',
-                  'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500/50',
-                  'border-r border-zinc-200/60 dark:border-[#333333]/60',
-                  'flex-shrink-0 whitespace-nowrap',
-                  isActive
-                    ? 'bg-white dark:bg-[#0A0A0A] text-zinc-900 dark:text-zinc-100 shadow-sm'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
-                )}
+                className={cn(base, isActive ? activeCls : inactiveCls)}
               >
-                {/* File Icon */}
-                <div className={cn(
-                  'flex-shrink-0 transition-colors duration-200',
-                  isActive 
-                    ? 'text-gray-600 dark:text-gray-400' 
-                    : 'text-zinc-500 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
-                )}>
-                  <IconComponent size={12} />
-                </div>
-                
-                {/* File Name */}
-                <span className="truncate font-medium min-w-0">
-                  {file.name}
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="shrink-0 text-zinc-500 dark:text-zinc-500">
+                    <IconComponent size={12} />
+                  </span>
+                  <span className="truncate font-medium">{file.name}</span>
                 </span>
-                
-                {/* Active Indicator */}
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-gray-500 to-gray-600 dark:from-gray-400 dark:to-gray-500 rounded-t-sm" />
-                )}
-                
-                {/* Subtle hover effect */}
-                <div className={cn(
-                  'absolute inset-0 rounded-t-lg transition-opacity duration-200',
-                  'bg-gradient-to-b from-white/20 to-transparent dark:from-white/5 dark:to-transparent',
-                  isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-                )} />
               </button>
             );
           })}
         </div>
-        
-        {/* Gradient fade effects */}
-        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-zinc-50 to-transparent dark:from-[#111111] dark:to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-zinc-50 to-transparent dark:from-[#111111] dark:to-transparent pointer-events-none" />
       </div>
 
-      {/* Active File Code Block */}
       <div className="bg-white dark:bg-[#0A0A0A]">
         <CodeBlock
           code={files[activeFileIndex].code}
           language={files[activeFileIndex].language}
-          fileName={files[activeFileIndex].name}
+          fileName={showInnerFileName ? files[activeFileIndex].name : undefined}
           badges={files[activeFileIndex].badges}
           showLineNumbers={showLineNumbers}
           enableLineHighlight={enableLineHighlight}
           enableLineHover={enableLineHover}
           maxHeight={maxHeight}
+          showMetaInfo={showMetaInfo}
+          showIcon={showIcon}
         />
       </div>
     </div>

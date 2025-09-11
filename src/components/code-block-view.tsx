@@ -256,7 +256,7 @@ export function CodeBlockView() {
             <div className="flex items-center gap-3">
               {/* Demo Tabs */}
               <div className="flex items-center gap-1">
-                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mr-2">Demos:</span>
+                <span className="text-xs font-medium text-[var(--foreground)]/60 mr-2">Demos:</span>
                 {[
                   { key: "search", label: "Search", shortcut: "1" },
                   { key: "file-name", label: "File Name", shortcut: "2" },
@@ -273,8 +273,8 @@ export function CodeBlockView() {
                     className={cn(
                       "px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1",
                       activeTab === tab.key
-                        ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600"
-                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        ? "bg-[var(--background)] text-[var(--foreground)] border border-[var(--foreground)]/20"
+                        : "text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5"
                     )}
                   >
                     <span>{tab.label}</span>
@@ -287,7 +287,7 @@ export function CodeBlockView() {
               
               {/* Props Links */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mr-1">Props:</span>
+                <span className="text-xs font-medium text-[var(--foreground)]/60 mr-1">Props:</span>
                 <button
                   onClick={() => {
                     const toggleButton = document.querySelector('[data-props-panel-toggle]');
@@ -295,10 +295,10 @@ export function CodeBlockView() {
                       (toggleButton as HTMLButtonElement).click();
                     }
                   }}
-                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
                 >
                   <span>All Props</span>
-                  <kbd className="px-1 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
+                  <kbd className="px-1 py-0.5 text-xs bg-[var(--foreground)]/5 border border-[var(--foreground)]/20 rounded">
                     ⌘P
                   </kbd>
                 </button>
@@ -312,10 +312,10 @@ export function CodeBlockView() {
                       }
                     }
                   }}
-                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
                 >
                   <span>Current Props</span>
-                  <kbd className="px-1 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
+                  <kbd className="px-1 py-0.5 text-xs bg-[var(--foreground)]/5 border border-[var(--foreground)]/20 rounded">
                     ⌘/
                   </kbd>
                 </button>
@@ -325,7 +325,7 @@ export function CodeBlockView() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleTheme}
-                  className="px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#111111] border border-zinc-200 dark:border-[#333333]"
+                  className="px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
                   title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
                 >
                   {isDarkMode ? (
@@ -348,7 +348,7 @@ export function CodeBlockView() {
       
       {/* Main Content */}
       <div className="pt-20 h-full flex items-center justify-center">
-        <div className="w-4/6 pt-32">
+        <div className="w-4/6 pt-32 ">
 
         {activeTab === "search" && (
           <div className="space-y-4 my-32" data-demo-active="true">
@@ -874,8 +874,8 @@ const UserProfile: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-        <span className="ml-2 text-gray-600">Loading profile...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--foreground)]"></div>
+        <span className="ml-2 text-[var(--foreground)]/60">Loading profile...</span>
       </div>
     );
   }

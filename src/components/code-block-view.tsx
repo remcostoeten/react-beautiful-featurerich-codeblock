@@ -351,7 +351,7 @@ export function CodeBlockView() {
         <div className="w-4/6 pt-32 ">
 
         {activeTab === "search" && (
-          <div className="space-y-4 my-32" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               This demo shows the search functionality in action. The
               search box is pre-filled with &quot;return userData&quot;

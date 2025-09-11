@@ -273,8 +273,8 @@ export function CodeBlockView() {
                     className={cn(
                       "px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1",
                       activeTab === tab.key
-                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#111111]"
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                     )}
                   >
                     <span>{tab.label}</span>
@@ -295,10 +295,10 @@ export function CodeBlockView() {
                       (toggleButton as HTMLButtonElement).click();
                     }
                   }}
-                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800"
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
                 >
                   <span>All Props</span>
-                  <kbd className="px-1 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded">
+                  <kbd className="px-1 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
                     ⌘P
                   </kbd>
                 </button>
@@ -312,10 +312,10 @@ export function CodeBlockView() {
                       }
                     }
                   }}
-                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800"
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
                 >
                   <span>Current Props</span>
-                  <kbd className="px-1 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded">
+                  <kbd className="px-1 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
                     ⌘/
                   </kbd>
                 </button>

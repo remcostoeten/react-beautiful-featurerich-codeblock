@@ -464,7 +464,7 @@ const getBadgeClasses = ({ variant = "default", customClass }: TBadgeProps): str
   }
 
   const variants = {
-    primary: "border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-400 hover:text-blue-300 hover:shadow-md",
+    primary: "border border-gray-500/30 bg-gray-500/10 text-gray-400 hover:border-gray-400 hover:text-gray-300 hover:shadow-md",
     secondary: "border border-emerald-400/50 bg-emerald-500/5 text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10 hover:shadow-emerald-500/20 hover:shadow-lg",
     success: "border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:border-orange-400 hover:text-orange-300 hover:shadow-md",
     warning: "border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-md",
@@ -1033,7 +1033,7 @@ export function CodeBlock({
                 onClick={goToPreviousResult}
                 className={cn(
                   "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
-                  hasResultsAbove && "text-blue-600 dark:text-blue-400"
+                  hasResultsAbove && "text-gray-600 dark:text-gray-400"
                 )}
                 title={hasResultsAbove ? "More results above" : "Previous result"}
               >
@@ -1045,7 +1045,7 @@ export function CodeBlock({
                 onClick={goToNextResult}
                 className={cn(
                   "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
-                  hasResultsBelow && "text-blue-600 dark:text-blue-400"
+                  hasResultsBelow && "text-gray-600 dark:text-gray-400"
                 )}
                 title={hasResultsBelow ? "More results below" : "Next result"}
               >
@@ -1175,7 +1175,7 @@ export function CodeBlock({
                 {/* Auto-scroll indicator */}
                 {isAutoScrolling && (
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                    <div className="w-2 h-0.5 bg-blue-400/50 rounded-full animate-pulse" />
+                    <div className="w-2 h-0.5 bg-gray-400/50 rounded-full animate-pulse" />
                   </div>
                 )}
               </div>
@@ -1308,14 +1308,14 @@ export function CodeBlock({
                   
                   {/* Search result indicators */}
                   {isSearching && hasResultsAbove && (
-                    <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
+                    <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-gray-600 dark:bg-gray-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
                       <ArrowUp size={12} />
                       <span>More above</span>
                     </div>
                   )}
                   
                   {isSearching && hasResultsBelow && (
-                    <div className="absolute bottom-4 right-4 flex items-center gap-1 px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1 px-2 py-1 bg-gray-600 dark:bg-gray-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
                       <ArrowDown size={12} />
                       <span>More below</span>
                     </div>

@@ -432,6 +432,16 @@ export type TCodeBlockProps = {
   width?: string;
   /** Custom height */
   height?: string;
+  /** Enable resizing with corner handles (default: false) */
+  resizable?: boolean;
+  /** Storage key for persisting resize dimensions (default: 'codeblock-resize') */
+  resizeStorageKey?: string;
+  /** Disable search functionality entirely (default: false) */
+  disableSearch?: boolean;
+  /** Disable copy functionality entirely (default: false) */
+  disableCopy?: boolean;
+  /** Disable the entire top bar/header (default: false) */
+  disableTopBar?: boolean;
 };
 
 // ============================================================================
@@ -512,6 +522,11 @@ export function CodeBlock({
   showBottomFade = true,
   width,
   height,
+  resizable = false,
+  resizeStorageKey = 'codeblock-resize',
+  disableSearch = false,
+  disableCopy = false,
+  disableTopBar = false,
 }: TCodeBlockProps) {
 // State management
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -525,6 +540,10 @@ export function CodeBlock({
   const [scrollPosition, setScrollPosition] = useState<'start' | 'middle' | 'end'>('start');
   const [isAutoScrolling, setIsAutoScrolling] = useState(enableAutoScroll);
   const [hoveredLine, setHoveredLine] = useState<number | null>(null);
+  const [hasResultsAbove, setHasResultsAbove] = useState(false);
+  const [hasResultsBelow, setHasResultsBelow] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDimensions, setResizeDimensions] = useState({ width: width || 'auto', height: height || '400px' });
 
   // Theme detection
   const isDark = useIsDarkMode();
@@ -532,6 +551,7 @@ export function CodeBlock({
   // Refs
   const codeRef = useRef<HTMLDivElement>(null);
   const badgeScrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Drag-to-scroll state
   const [isDragging, setIsDragging] = useState(false);
@@ -612,11 +632,147 @@ export function CodeBlock({
     };
   }, [badges, isAutoScrolling, autoScrollSpeed]);
 
-  // Scroll to specific line
+  // Check if search results are visible in viewport
+  const updateSearchIndicators = useCallback(() => {
+    if (searchResults.length === 0) {
+      setHasResultsAbove(false);
+      setHasResultsBelow(false);
+      return;
+    }
+
+    const container = codeRef.current?.querySelector('[style*="maxHeight"]') as HTMLElement;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const containerTop = containerRect.top;
+    const containerBottom = containerRect.bottom;
+
+    let hasAbove = false;
+    let hasBelow = false;
+
+    searchResults.forEach((lineNumber) => {
+      const lineElement = codeRef.current?.querySelector(`[data-line-number="${lineNumber}"]`) as HTMLElement;
+      if (lineElement) {
+        const lineRect = lineElement.getBoundingClientRect();
+        const lineTop = lineRect.top;
+        const lineBottom = lineRect.bottom;
+
+        if (lineTop < containerTop) {
+          hasAbove = true;
+        }
+        if (lineBottom > containerBottom) {
+          hasBelow = true;
+        }
+      }
+    });
+
+    setHasResultsAbove(hasAbove);
+    setHasResultsBelow(hasBelow);
+  }, [searchResults]);
+
+  // Enhanced scroll to specific line with viewport checking
   const scrollToLine = useCallback((lineNumber: number) => {
     const lineElement = codeRef.current?.querySelector(`[data-line-number="${lineNumber}"]`);
-    lineElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (lineElement) {
+      lineElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      // Update indicators after scrolling
+      setTimeout(() => {
+        updateSearchIndicators();
+      }, 100);
+    }
+  }, [updateSearchIndicators]);
+
+  // Load saved dimensions from localStorage
+  useEffect(() => {
+    if (resizable && resizeStorageKey) {
+      try {
+        const saved = localStorage.getItem(resizeStorageKey);
+        if (saved) {
+          const dimensions = JSON.parse(saved);
+          setResizeDimensions(dimensions);
+        }
+      } catch (error) {
+        console.warn('Failed to load saved dimensions:', error);
+      }
+    }
+  }, [resizable, resizeStorageKey]);
+
+  // Save dimensions to localStorage
+  const saveDimensions = useCallback((dimensions: { width: string; height: string }) => {
+    if (resizable && resizeStorageKey) {
+      try {
+        localStorage.setItem(resizeStorageKey, JSON.stringify(dimensions));
+      } catch (error) {
+        console.warn('Failed to save dimensions:', error);
+      }
+    }
+  }, [resizable, resizeStorageKey]);
+
+  // Resize functionality
+  const handleResize = useCallback((e: MouseEvent) => {
+    if (!isResizing || !containerRef.current) return;
+
+    e.preventDefault();
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    
+    // Get parent container bounds
+    const parentContainer = container.parentElement;
+    const parentRect = parentContainer?.getBoundingClientRect();
+    
+    // Calculate new dimensions
+    // Width: distance from left edge to mouse X
+    const newWidth = Math.max(200, e.clientX - rect.left);
+    // Height: distance from top edge to mouse Y (for bottom-right corner resize)
+    const newHeight = Math.max(150, e.clientY - rect.top);
+    
+    // Constrain to parent container if it exists
+    let constrainedWidth = newWidth;
+    let constrainedHeight = newHeight;
+    
+    if (parentRect) {
+      const maxWidth = parentRect.width - (rect.left - parentRect.left);
+      const maxHeight = parentRect.height - (rect.top - parentRect.top);
+      
+      constrainedWidth = Math.min(newWidth, maxWidth);
+      constrainedHeight = Math.min(newHeight, maxHeight);
+    }
+    
+    const dimensions = {
+      width: `${constrainedWidth}px`,
+      height: `${constrainedHeight}px`
+    };
+    
+    setResizeDimensions(dimensions);
+    saveDimensions(dimensions);
+  }, [isResizing, saveDimensions]);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
   }, []);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  // Add resize event listeners
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', handleResizeEnd);
+      document.body.style.cursor = 'nw-resize';
+      document.body.style.userSelect = 'none';
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResize);
+        document.removeEventListener('mouseup', handleResizeEnd);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+    }
+  }, [isResizing, handleResize, handleResizeEnd]);
 
   // Search handler with debouncing via useEffect
   const handleSearch = useCallback(
@@ -655,6 +811,24 @@ export function CodeBlock({
     const timeoutId = setTimeout(() => handleSearch(searchQuery), 300);
     return () => clearTimeout(timeoutId);
   }, [searchQuery, handleSearch]);
+
+  // Update search indicators when results change
+  useEffect(() => {
+    updateSearchIndicators();
+  }, [searchResults, updateSearchIndicators]);
+
+  // Add scroll listener to update indicators
+  useEffect(() => {
+    const container = codeRef.current?.querySelector('[style*="maxHeight"]') as HTMLElement;
+    if (!container) return;
+
+    const handleScroll = () => {
+      updateSearchIndicators();
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [updateSearchIndicators]);
 
   // Copy to clipboard
   const copyToClipboard = useCallback(async () => {
@@ -701,11 +875,11 @@ export function CodeBlock({
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyboard(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "c") {
+      if ((e.metaKey || e.ctrlKey) && e.key === "c" && !disableCopy && !disableTopBar) {
         copyToClipboard();
       }
 
-      if ((e.metaKey || e.ctrlKey) && e.key === "f" && !isCollapsed) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "f" && !isCollapsed && !disableSearch && !disableTopBar) {
         e.preventDefault();
         setIsSearching(true);
       }
@@ -738,6 +912,9 @@ export function CodeBlock({
     copyToClipboard,
     goToNextResult,
     goToPreviousResult,
+    disableSearch,
+    disableCopy,
+    disableTopBar,
   ]);
 
   // Drag-to-scroll functionality for badges
@@ -813,7 +990,7 @@ export function CodeBlock({
 
   // Search UI component
   function renderSearchUI() {
-    if (!isSearching) return null;
+    if (disableSearch || !isSearching) return null;
 
     return (
       <div
@@ -854,7 +1031,11 @@ export function CodeBlock({
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousResult}
-                className="h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                className={cn(
+                  "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
+                  hasResultsAbove && "text-blue-600 dark:text-blue-400"
+                )}
+                title={hasResultsAbove ? "More results above" : "Previous result"}
               >
                 <ArrowUp size={14} />
               </Button>
@@ -862,7 +1043,11 @@ export function CodeBlock({
                 variant="ghost"
                 size="icon"
                 onClick={goToNextResult}
-                className="h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                className={cn(
+                  "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
+                  hasResultsBelow && "text-blue-600 dark:text-blue-400"
+                )}
+                title={hasResultsBelow ? "More results below" : "Next result"}
               >
                 <ArrowDown size={14} />
               </Button>
@@ -891,13 +1076,23 @@ export function CodeBlock({
 
 
   return (
-    <div className={cn("relative", className)} style={{ width, height }}>
+    <div 
+      ref={containerRef}
+      className={cn("relative", className)} 
+      style={{ 
+        width: resizable ? resizeDimensions.width : width, 
+        height: resizable ? resizeDimensions.height : height,
+        maxWidth: resizable ? '100%' : undefined,
+        maxHeight: resizable ? '100%' : undefined
+      }}
+    >
       <div
         className="group relative rounded-xl overflow-hidden bg-white dark:bg-[#0A0A0A] border border-zinc-200 dark:border-[#333333] w-full transition-all duration-200"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <header className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A] border-b border-zinc-200 dark:border-[#333333]">
+        {!disableTopBar && (
+          <header className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A] border-b border-zinc-200 dark:border-[#333333]">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {showIcon && (
              <span className="flex items-center justify-center shrink-0 text-zinc-600 dark:text-zinc-500 transition-colors duration-200 group-hover:text-zinc-800 dark:group-hover:text-zinc-400">
@@ -997,7 +1192,7 @@ export function CodeBlock({
           <div className="flex items-center space-x-1.5 h-8">
             {renderSearchUI()}
 
-            {!isSearching && (
+            {!disableSearch && !isSearching && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -1024,32 +1219,35 @@ export function CodeBlock({
               </motion.div>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={copyToClipboard}
-              className="relative h-8 w-8 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/10"
-              title="Copy code (⌘/Ctrl + C)"
-            >
-              <AnimatePresence mode="wait">
-                {isCopied ? (
-                  <motion.div
-                    key="check"
-                    variants={ANIMATIONS.copy}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    className="text-emerald-600 dark:text-emerald-400"
-                  >
-                    <Check size={16} />
-                  </motion.div>
-                ) : (
-                  <Copy size={16} />
-                )}
-              </AnimatePresence>
-            </Button>
+            {!disableCopy && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={copyToClipboard}
+                className="relative h-8 w-8 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/10"
+                title="Copy code (⌘/Ctrl + C)"
+              >
+                <AnimatePresence mode="wait">
+                  {isCopied ? (
+                    <motion.div
+                      key="check"
+                      variants={ANIMATIONS.copy}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="text-emerald-600 dark:text-emerald-400"
+                    >
+                      <Check size={16} />
+                    </motion.div>
+                  ) : (
+                    <Copy size={16} />
+                  )}
+                </AnimatePresence>
+              </Button>
+            )}
           </div>
         </header>
+        )}
 
         {/* Code Content */}
         <AnimatePresence initial={false}>
@@ -1094,7 +1292,7 @@ export function CodeBlock({
                           display: "block",
                           cursor: enableLineHighlight || enableLineHover ? "pointer" : "default",
                           backgroundColor: getLineBackgroundColor(lineNumber),
-                          transition: "background-color 0.16s ease",
+                          transition: enableLineHighlight ? "background-color 0.16s ease" : "none", // Only transition for click highlights, not hover
                         },
                         onClick: () => handleLineClick(lineNumber),
                         onMouseEnter: () => handleLineMouseEnter(lineNumber),
@@ -1106,6 +1304,21 @@ export function CodeBlock({
                   </div>
                   {showBottomFade && (
                     <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/80 dark:to-transparent pointer-events-none" />
+                  )}
+                  
+                  {/* Search result indicators */}
+                  {isSearching && hasResultsAbove && (
+                    <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
+                      <ArrowUp size={12} />
+                      <span>More above</span>
+                    </div>
+                  )}
+                  
+                  {isSearching && hasResultsBelow && (
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1 px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-medium rounded-md shadow-lg pointer-events-none animate-pulse">
+                      <ArrowDown size={12} />
+                      <span>More below</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1129,6 +1342,15 @@ export function CodeBlock({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Resize Handle */}
+      {resizable && (
+        <div
+          className="absolute bottom-0 right-0 w-6 h-6 cursor-nw-resize z-20"
+          onMouseDown={handleResizeStart}
+          title="Drag to resize"
+        />
+      )}
     </div>
   );
 }

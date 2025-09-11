@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CodeBlock } from './code-block';
 import { cn } from './code-block';
+import { getLanguageIcon } from './language-icons';
 
 export type TFile = {
   name: string;
@@ -34,25 +35,63 @@ export function MultiFileCodeBlock({
   const [activeFileIndex, setActiveFileIndex] = useState(0);
 
   return (
-    <div className={cn('rounded-xl overflow-hidden border border-zinc-200 dark:border-[#333333]', className)}>
-      {/* File Tabs */}
-      <div className="flex overflow-x-auto bg-zinc-50 dark:bg-[#111111] border-b border-zinc-200 dark:border-[#333333]">
-        {files.map((file, index) => (
-          <button
-            key={file.name}
-            onClick={() => setActiveFileIndex(index)}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-r border-zinc-200 dark:border-[#333333] transition-colors',
-              'hover:bg-zinc-100 dark:hover:bg-[#0A0A0A]',
-              'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500',
-              activeFileIndex === index
-                ? 'bg-white dark:bg-[#0A0A0A] text-zinc-900 dark:text-zinc-100'
-                : 'bg-zinc-50 dark:bg-[#111111] text-zinc-600 dark:text-zinc-400'
-            )}
-          >
-            {file.name}
-          </button>
-        ))}
+    <div className={cn('rounded-xl overflow-hidden border border-zinc-200 dark:border-[#333333] shadow-sm', className)}>
+      {/* Enhanced File Tabs */}
+      <div className="relative bg-gradient-to-r from-zinc-50 via-zinc-100 to-zinc-50 dark:from-[#111111] dark:via-[#0A0A0A] dark:to-[#111111] border-b border-zinc-200 dark:border-[#333333]">
+        <div className="flex overflow-x-auto scrollbar-hide whitespace-nowrap">
+          {files.map((file, index) => {
+            const IconComponent = getLanguageIcon(file.language);
+            const isActive = activeFileIndex === index;
+            
+            return (
+              <button
+                key={file.name}
+                onClick={() => setActiveFileIndex(index)}
+                className={cn(
+                  'group relative flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                  'hover:bg-white/60 dark:hover:bg-[#0A0A0A]/60',
+                  'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50',
+                  'border-r border-zinc-200/60 dark:border-[#333333]/60',
+                  'flex-shrink-0 whitespace-nowrap',
+                  isActive
+                    ? 'bg-white dark:bg-[#0A0A0A] text-zinc-900 dark:text-zinc-100 shadow-sm'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
+                )}
+              >
+                {/* File Icon */}
+                <div className={cn(
+                  'flex-shrink-0 transition-colors duration-200',
+                  isActive 
+                    ? 'text-blue-600 dark:text-blue-400' 
+                    : 'text-zinc-500 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
+                )}>
+                  <IconComponent size={12} />
+                </div>
+                
+                {/* File Name */}
+                <span className="truncate font-medium min-w-0">
+                  {file.name}
+                </span>
+                
+                {/* Active Indicator */}
+                {isActive && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-t-sm" />
+                )}
+                
+                {/* Subtle hover effect */}
+                <div className={cn(
+                  'absolute inset-0 rounded-t-lg transition-opacity duration-200',
+                  'bg-gradient-to-b from-white/20 to-transparent dark:from-white/5 dark:to-transparent',
+                  isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                )} />
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Gradient fade effects */}
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-zinc-50 to-transparent dark:from-[#111111] dark:to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-zinc-50 to-transparent dark:from-[#111111] dark:to-transparent pointer-events-none" />
       </div>
 
       {/* Active File Code Block */}

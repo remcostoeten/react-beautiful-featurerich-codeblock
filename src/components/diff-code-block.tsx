@@ -94,6 +94,7 @@ export function DiffCodeBlock({
   height,
 }: TDiffCodeBlockProps) {
   const [mode, setMode] = useState<'split' | 'unified'>('unified');
+  const [showDiffHighlight, setShowDiffHighlight] = useState(false);
   const diff = computeDiff(oldCode, newCode);
   const addedLines = diff.filter(line => line.type === 'added').length;
   const removedLines = diff.filter(line => line.type === 'removed').length;
@@ -103,7 +104,7 @@ export function DiffCodeBlock({
     
     return (
       <div className={cn('rounded-xl overflow-hidden border border-zinc-200 dark:border-[#333333]', className)} style={{ width, height }}>
-        <div className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A] border-b border-zinc-200 dark:border-[#333]">
+        <div className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A]">
           <div className="flex items-center gap-3">
             <GitBranch size={16} className="text-zinc-600 dark:text-zinc-400" />
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -118,16 +119,30 @@ export function DiffCodeBlock({
               </span>
             </div>
           </div>
-          <button
-            onClick={() => setMode('split')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111] rounded-md transition-colors"
-          >
-            <ArrowLeftRight size={14} />
-            Split View
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowDiffHighlight(!showDiffHighlight)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
+                showDiffHighlight
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111]"
+              )}
+            >
+              <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-blue-500" : "bg-zinc-400")} />
+              Highlight Diff
+            </button>
+            <button
+              onClick={() => setMode('split')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111] rounded-md transition-colors"
+            >
+              <ArrowLeftRight size={14} />
+              Split View
+            </button>
+          </div>
         </div>
         
-        <div className="bg-white dark:bg-[#0A0A0A] relative">
+        <div className="bg-white dark:bg-[#0A0A0A]">
           <CodeBlock
             code={diff.map(line => {
               const prefix = line.type === 'added' ? '+ ' : line.type === 'removed' ? '- ' : '  ';
@@ -137,10 +152,8 @@ export function DiffCodeBlock({
             showLineNumbers
             maxHeight={maxHeight}
             enableLineHighlight={false}
+            showBottomFade={showBottomFade}
           />
-          {showBottomFade && (
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/80 dark:to-transparent pointer-events-none" />
-          )}
         </div>
       </div>
     );
@@ -163,7 +176,7 @@ export function DiffCodeBlock({
 
   return (
     <div className={cn('rounded-xl overflow-hidden border border-zinc-200 dark:border-[#333333]', className)} style={{ width, height }}>
-      <div className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A] border-b border-zinc-200 dark:border-[#333333]">
+      <div className="flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#0A0A0A]">
         <div className="flex items-center gap-3">
           <GitBranch size={16} className="text-zinc-600 dark:text-zinc-400" />
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -178,48 +191,60 @@ export function DiffCodeBlock({
             </span>
           </div>
         </div>
-        <button
-          onClick={() => setMode('unified')}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111] rounded-md transition-colors"
-        >
-          <GitBranch size={14} />
-          Unified View
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowDiffHighlight(!showDiffHighlight)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
+              showDiffHighlight
+                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111]"
+            )}
+          >
+            <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-blue-500" : "bg-zinc-400")} />
+            Highlight Diff
+          </button>
+          <button
+            onClick={() => setMode('unified')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111] rounded-md transition-colors"
+          >
+            <GitBranch size={14} />
+            Unified View
+          </button>
+        </div>
       </div>
       
       <div className="grid grid-cols-2 divide-x divide-zinc-200 dark:divide-[#333333]">
         <div className="bg-white dark:bg-[#0A0A0A] relative">
-          <div className="px-4 py-2 bg-red-50 dark:bg-red-950/20 border-b border-zinc-200 dark:border-[#333333]">
+          <div className="px-4 py-2 bg-red-50 dark:bg-red-950/20">
             <span className="text-sm font-medium text-red-700 dark:text-red-400">Before</span>
           </div>
-          <div className="relative">
+          <div>
             <CodeBlock
               code={oldCode}
               language={language}
               showLineNumbers
               maxHeight={maxHeight}
-              enableLineHighlight={false}
+              enableLineHighlight={showDiffHighlight}
+              initialHighlightedLines={showDiffHighlight ? oldDiffLines : []}
+              showBottomFade={showBottomFade}
             />
-            {showBottomFade && (
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/80 dark:to-transparent pointer-events-none" />
-            )}
           </div>
         </div>
         <div className="bg-white dark:bg-[#0A0A0A] relative">
-          <div className="px-4 py-2 bg-green-50 dark:bg-green-950/20 border-b border-zinc-200 dark:border-[#333333]">
+          <div className="px-4 py-2 bg-green-50 dark:bg-green-950/20">
             <span className="text-sm font-medium text-green-700 dark:text-green-400">After</span>
           </div>
-          <div className="relative">
+          <div>
             <CodeBlock
               code={newCode}
               language={language}
               showLineNumbers
               maxHeight={maxHeight}
-              enableLineHighlight={false}
+              enableLineHighlight={showDiffHighlight}
+              initialHighlightedLines={showDiffHighlight ? newDiffLines : []}
+              showBottomFade={showBottomFade}
             />
-            {showBottomFade && (
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#0A0A0A] dark:via-[#0A0A0A]/80 dark:to-transparent pointer-events-none" />
-            )}
           </div>
           </div>
       </div>

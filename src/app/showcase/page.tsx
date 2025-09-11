@@ -7,15 +7,11 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Code2, 
-  Sparkles, 
   Zap, 
   Palette, 
   Search, 
   Copy, 
-  Eye,
-  Github,
-  Star,
-  Download
+  Eye
 } from "lucide-react";
 import Link from "next/link";
 
@@ -162,71 +158,25 @@ export default function ShowcasePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Floating Code Symbols */}
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-white/10 text-4xl font-mono"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.1, 0.3, 0.1],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          >
-            {['<', '>', '{', '}', '(', ')', ';', '=', '+', '-', '*', '/'][Math.floor(Math.random() * 12)]}
-          </motion.div>
-        ))}
-        
-        {/* Gradient Orbs */}
-        <motion.div
-          className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -80, 0],
-            y: [0, 60, 0],
-          }}
-          transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-        />
-      </div>
+    <div className="min-h-screen bg-white dark:bg-[rgb(11,11,11)] relative">
 
       {/* Navigation */}
       <nav className="fixed top-4 left-4 z-50 flex gap-2">
         <Link 
           href="/"
-          className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white text-sm font-medium hover:bg-white/20 transition-colors"
+          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         >
           Demo
         </Link>
         <Link 
           href="/showcase"
-          className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm font-medium hover:bg-white/30 transition-colors"
+          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-gray-100 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           Showcase
         </Link>
         <Link 
           href="/cover"
-          className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white text-sm font-medium hover:bg-white/20 transition-colors"
+          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         >
           Cover
         </Link>
@@ -234,44 +184,29 @@ export default function ShowcasePage() {
 
       {/* Header */}
       <motion.header
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.5 }}
         className="relative z-10 p-8"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="flex items-center gap-3"
-          >
-            <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-              <Code2 className="w-8 h-8 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
+              <Code2 className="w-8 h-8 text-gray-700 dark:text-gray-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Beautiful Code Block</h1>
-              <p className="text-purple-200 text-sm">The most beautiful code component</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Beautiful Code Block</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Component showcase</p>
             </div>
-          </motion.div>
+          </div>
           
           <div className="flex items-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={toggleTheme}
-              className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-white hover:bg-white/20 transition-colors"
+              className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               {isDarkMode ? '☀️' : '🌙'}
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:from-purple-600 hover:to-pink-600 transition-all"
-            >
-              <Github className="w-5 h-5" />
-              View on GitHub
-            </motion.button>
+            </button>
           </div>
         </div>
       </motion.header>
@@ -280,103 +215,58 @@ export default function ShowcasePage() {
       <div className="relative z-10 max-w-7xl mx-auto px-8 pb-16">
         {/* Hero Section */}
         <motion.div
-          initial={{ y: 50, opacity: 0 }}
+          initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white mb-8"
-          >
-            <Sparkles className="w-5 h-5 text-yellow-400" />
-            <span className="text-sm font-medium">Now Available</span>
-          </motion.div>
-          
-          <h2 className="text-6xl font-bold text-white mb-6">
-            The Most{" "}
-            <motion.span
-              animate={{ 
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent bg-[length:200%_100%]"
-            >
-              Beautiful
-            </motion.span>
-            <br />
-            Code Block Component
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Component Showcase
           </h2>
           
-          <p className="text-xl text-purple-200 mb-8 max-w-3xl mx-auto">
-            Feature-rich, customizable, and stunningly beautiful code display component 
-            with syntax highlighting, search, animations, and more.
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+            Explore the different features and capabilities of the Beautiful Code Block component.
           </p>
-          
-          <div className="flex justify-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-semibold text-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg shadow-purple-500/25"
-            >
-              <Download className="w-6 h-6" />
-              Get Started
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-xl text-white font-semibold text-lg hover:bg-white/20 transition-all border border-white/20"
-            >
-              <Star className="w-6 h-6" />
-              Star on GitHub
-            </motion.button>
-          </div>
         </motion.div>
 
         {/* Demo Showcase */}
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
+          initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="grid lg:grid-cols-2 gap-12 items-center mb-16"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-12 mb-16"
         >
           {/* Demo Info */}
-          <div className="space-y-8">
+          <div className="text-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentDemo}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 50, opacity: 0 }}
-                transition={{ duration: 0.5 }}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.3 }}
                 className="space-y-4"
               >
-                <div className={`inline-flex items-center gap-3 px-4 py-3 bg-gradient-to-r ${demos[currentDemo].color} rounded-xl text-white`}>
+                <div className="inline-flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-300">
                   {demos[currentDemo].icon}
-                  <span className="font-semibold">{demos[currentDemo].title}</span>
+                  <span className="font-medium">{demos[currentDemo].title}</span>
                 </div>
                 
-                <h3 className="text-3xl font-bold text-white">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {demos[currentDemo].title}
                 </h3>
                 
-                <p className="text-xl text-purple-200">
+                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                   {demos[currentDemo].description}
                 </p>
                 
-                <div className="flex gap-2">
+                <div className="flex justify-center gap-2">
                   {demos.map((_, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      className={`w-3 h-3 rounded-full ${
-                        index === currentDemo ? 'bg-purple-400' : 'bg-white/30'
+                      className={`w-2 h-2 rounded-full ${
+                        index === currentDemo ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-300 dark:bg-gray-600'
                       }`}
-                      animate={{
-                        scale: index === currentDemo ? [1, 1.2, 1] : 1,
-                      }}
-                      transition={{ duration: 0.5 }}
                     />
                   ))}
                 </div>
@@ -385,25 +275,7 @@ export default function ShowcasePage() {
           </div>
 
           {/* Code Block Demo */}
-          <motion.div
-            animate={{
-              scale: animationPhase === 0 ? [1, 1.02, 1] : 1,
-              rotateY: animationPhase === 1 ? [0, 5, 0] : 0,
-            }}
-            transition={{ duration: 2 }}
-            className="relative"
-          >
-            <motion.div
-              animate={{
-                boxShadow: [
-                  "0 0 0 0 rgba(168, 85, 247, 0.4)",
-                  "0 0 0 20px rgba(168, 85, 247, 0)",
-                  "0 0 0 0 rgba(168, 85, 247, 0)",
-                ],
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute -inset-4 rounded-2xl"
-            />
+          <div className="relative">
             
             {currentDemo === 0 && (
               <CodeBlock
@@ -476,36 +348,32 @@ console.log("Found on lines:", searchResults);`}
                 newCode={diffCode.newCode}
               />
             )}
-          </motion.div>
+          </div>
         </motion.div>
 
         {/* Features Grid */}
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
+          initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {[
-            { icon: <Zap className="w-8 h-8" />, title: "110+ Languages", desc: "Comprehensive syntax highlighting" },
-            { icon: <Search className="w-8 h-8" />, title: "Smart Search", desc: "Find code instantly with Cmd+F" },
-            { icon: <Copy className="w-8 h-8" />, title: "One-Click Copy", desc: "Copy code with Cmd+C" },
-            { icon: <Eye className="w-8 h-8" />, title: "Line Highlighting", desc: "Interactive line selection" },
+            { icon: <Zap className="w-6 h-6" />, title: "110+ Languages", desc: "Comprehensive syntax highlighting" },
+            { icon: <Search className="w-6 h-6" />, title: "Smart Search", desc: "Find code instantly with Cmd+F" },
+            { icon: <Copy className="w-6 h-6" />, title: "One-Click Copy", desc: "Copy code with Cmd+C" },
+            { icon: <Eye className="w-6 h-6" />, title: "Line Highlighting", desc: "Interactive line selection" },
           ].map((feature, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-center group hover:bg-white/10 transition-all"
+              className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 text-center group hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
             >
-              <div className="text-purple-400 mb-4 group-hover:text-purple-300 transition-colors">
+              <div className="text-gray-600 dark:text-gray-400 mb-4 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
                 {feature.icon}
               </div>
-              <h4 className="text-white font-semibold mb-2">{feature.title}</h4>
-              <p className="text-purple-200 text-sm">{feature.desc}</p>
-            </motion.div>
+              <h4 className="text-gray-900 dark:text-gray-100 font-semibold mb-2">{feature.title}</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{feature.desc}</p>
+            </div>
           ))}
         </motion.div>
       </div>

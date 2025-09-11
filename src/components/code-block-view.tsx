@@ -424,7 +424,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "file-name" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Display a file name at the top of the code block for better
               context.
@@ -468,7 +468,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "badges" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Add badges to categorize or provide additional context to
               your code blocks.
@@ -517,7 +517,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "hover" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Hover over any line to see smooth highlighting. This feature works
               alongside click highlighting and search results with proper precedence.
@@ -593,7 +593,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "multi-file" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Switch between multiple related files with a tabbed interface.
             </p>
@@ -622,7 +622,7 @@ export function App() {
                   language: "typescript",
                   code: `export function UserProfile() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-32">
       <h1>User Profile</h1>
       <div className="grid gap-4">
         <input type="text" placeholder="Name" />
@@ -638,7 +638,7 @@ export function App() {
                   language: "typescript",
                   code: `export function Settings() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-32">
       <h1>Settings</h1>
       <div className="grid gap-2">
         <label className="flex items-center gap-2">
@@ -690,7 +690,7 @@ export function App() {
         )}
 
         {activeTab === "diff" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               View code changes with additions and deletions highlighted.
               Toggle between unified and split views.
@@ -829,7 +829,7 @@ export class UserService {
         )}
 
         {activeTab === "resizable" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Resize the code block by dragging the corner handle. The dimensions will persist after page refresh.
             </p>
@@ -1029,7 +1029,7 @@ export default UserProfile;`}
         )}
 
         {activeTab === "source-code" && (
-          <div className="space-y-4" data-demo-active="true">
+          <div className="space-y-4 mt-32" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               View the complete source code of the CodeBlock component. This demonstrates the component itself displaying its own implementation.
             </p>

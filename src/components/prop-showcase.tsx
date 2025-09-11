@@ -38,7 +38,7 @@ export function PropShowcase({
         </div>
         
         {/* Props Grid */}
-        <div className="space-y-4">
+        <div className="space-y-4 mt-32">
           <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 uppercase tracking-wider text-center">
             Props Used
           </h4>

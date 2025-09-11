@@ -347,11 +347,11 @@ export function CodeBlockView() {
       </div>
       
       {/* Main Content */}
-      <div className="pt-20 h-full flex items-center justify-center">
-        <div className="w-4/6 pt-32 ">
+      <div className="h-full flex items-center justify-center">
+        <div className="w-full max-w-4xl px-4">
 
         {activeTab === "search" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               This demo shows the search functionality in action. The
               search box is pre-filled with &quot;return userData&quot;
@@ -424,7 +424,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "file-name" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Display a file name at the top of the code block for better
               context.
@@ -468,7 +468,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "badges" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Add badges to categorize or provide additional context to
               your code blocks.
@@ -517,7 +517,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "hover" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Hover over any line to see smooth highlighting. This feature works
               alongside click highlighting and search results with proper precedence.
@@ -593,7 +593,7 @@ export function CodeBlockView() {
         )}
 
         {activeTab === "multi-file" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Switch between multiple related files with a tabbed interface.
             </p>
@@ -690,7 +690,7 @@ export function App() {
         )}
 
         {activeTab === "diff" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               View code changes with additions and deletions highlighted.
               Toggle between unified and split views.
@@ -829,7 +829,7 @@ export class UserService {
         )}
 
         {activeTab === "resizable" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               Resize the code block by dragging the corner handle. The dimensions will persist after page refresh.
             </p>
@@ -1029,7 +1029,7 @@ export default UserProfile;`}
         )}
 
         {activeTab === "source-code" && (
-          <div className="space-y-4 mt-32" data-demo-active="true">
+          <div className="space-y-4 mt-16 mb-16" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               View the complete source code of the CodeBlock component. This demonstrates the component itself displaying its own implementation.
             </p>

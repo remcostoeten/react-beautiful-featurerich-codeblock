@@ -46,7 +46,7 @@ export function PropShowcase({
             {props.map((prop, index) => (
               <div key={index} className="flex items-center gap-3 p-3 bg-white dark:bg-[#0A0A0A] rounded-lg border border-zinc-200 dark:border-[#333333] hover:bg-zinc-50 dark:hover:bg-[#111111] transition-colors">
                 {/* Prop Name */}
-                <code className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded text-xs font-mono font-medium border border-blue-200 dark:border-blue-800 flex-shrink-0">
+                <code className="px-2 py-1 bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 rounded text-xs font-mono font-medium border border-gray-200 dark:border-gray-800 flex-shrink-0">
                   {prop.name}
                 </code>
                 

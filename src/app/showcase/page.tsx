@@ -110,7 +110,7 @@ export default function ShowcasePage() {
       title: "Interactive Search",
       description: "Find code instantly with Cmd+F",
       icon: <Search className="w-6 h-6" />,
-      color: "from-blue-500 to-cyan-500"
+      color: "from-gray-500 to-gray-600"
     },
     {
       title: "Multi-File Support",

@@ -304,7 +304,7 @@ export function PropsPanel({ className }: TPropsPanelProps) {
                   }
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 rounded-md border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900/30 transition-colors text-sm font-medium"
             >
               <ArrowDown size={14} />
               <span>Go to Current Demo Props</span>
@@ -324,7 +324,7 @@ export function PropsPanel({ className }: TPropsPanelProps) {
                     {category.props.map((prop, propIndex) => (
                       <div key={propIndex} className="bg-zinc-50 dark:bg-[#111111] rounded-lg p-3 border border-zinc-200 dark:border-[#333333]">
                         <div className="flex items-start justify-between gap-3 mb-2">
-                          <code className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded text-xs font-mono font-medium border border-blue-200 dark:border-blue-800">
+                          <code className="px-2 py-1 bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 rounded text-xs font-mono font-medium border border-gray-200 dark:border-gray-800">
                             {prop.name}
                           </code>
                           {prop.required && (

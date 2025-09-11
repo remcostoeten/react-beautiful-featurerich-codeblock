@@ -50,7 +50,7 @@ export function MultiFileCodeBlock({
                 className={cn(
                   'group relative flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-all duration-200',
                   'hover:bg-white/60 dark:hover:bg-[#0A0A0A]/60',
-                  'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50',
+                  'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500/50',
                   'border-r border-zinc-200/60 dark:border-[#333333]/60',
                   'flex-shrink-0 whitespace-nowrap',
                   isActive
@@ -62,7 +62,7 @@ export function MultiFileCodeBlock({
                 <div className={cn(
                   'flex-shrink-0 transition-colors duration-200',
                   isActive 
-                    ? 'text-blue-600 dark:text-blue-400' 
+                    ? 'text-gray-600 dark:text-gray-400' 
                     : 'text-zinc-500 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
                 )}>
                   <IconComponent size={12} />
@@ -75,7 +75,7 @@ export function MultiFileCodeBlock({
                 
                 {/* Active Indicator */}
                 {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-t-sm" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-gray-500 to-gray-600 dark:from-gray-400 dark:to-gray-500 rounded-t-sm" />
                 )}
                 
                 {/* Subtle hover effect */}

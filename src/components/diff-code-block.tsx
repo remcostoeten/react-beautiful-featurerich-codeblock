@@ -125,11 +125,11 @@ export function DiffCodeBlock({
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
                 showDiffHighlight
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                  ? "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111]"
               )}
             >
-              <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-blue-500" : "bg-zinc-400")} />
+              <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-gray-500" : "bg-zinc-400")} />
               Highlight Diff
             </button>
             <button
@@ -197,11 +197,11 @@ export function DiffCodeBlock({
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
               showDiffHighlight
-                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                ? "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#111111]"
             )}
           >
-            <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-blue-500" : "bg-zinc-400")} />
+            <div className={cn("w-2 h-2 rounded-full", showDiffHighlight ? "bg-gray-500" : "bg-zinc-400")} />
             Highlight Diff
           </button>
           <button

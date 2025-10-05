@@ -67,3 +67,39 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.bcv2-codeblock .bcv2-code-line {
+  transition: background-color 160ms ease;
+  will-change: background-color;
+}
+.bcv2-codeblock[data-enable-line-hover='true'] .bcv2-code-line:hover {
+  background-color: var(--bcv2-hover-color, rgba(0,0,0,0.03));
+}
+
+/* clicked/search state backgrounds */
+.bcv2-codeblock .bcv2-code-line.bcv2-search {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+.dark .bcv2-codeblock .bcv2-code-line.bcv2-search {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+.bcv2-codeblock .bcv2-code-line.bcv2-clicked {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.dark .bcv2-codeblock .bcv2-code-line.bcv2-clicked {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* keep hover from overriding higher-priority states */
+.bcv2-codeblock[data-enable-line-hover='true'] .bcv2-code-line.bcv2-search:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+.dark .bcv2-codeblock[data-enable-line-hover='true'] .bcv2-code-line.bcv2-search:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+.bcv2-codeblock[data-enable-line-hover='true'] .bcv2-code-line.bcv2-clicked:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.dark .bcv2-codeblock[data-enable-line-hover='true'] .bcv2-code-line.bcv2-clicked:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

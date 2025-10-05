@@ -314,6 +314,10 @@ const ANIMATIONS = {
     hidden: { opacity: 0, y: -20, scale: 0.95, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } },
     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
   },
+  searchToggle: {
+    hidden: { maxWidth: 0, transition: { duration: 0.1, ease: [0.2, 0.9, 0.3, 1] } },
+    visible: { maxWidth: 320, transition: { duration: 0.1, ease: [0.2, 0.9, 0.3, 1] } },
+  },
 } as const;
 
 // ============================================================================
@@ -560,6 +564,9 @@ export function CodeBlock({
 
   // Memoized values
   const stats = useMemo(() => calculateCodeStats(code), [code]);
+  const hoverColorStyle = useMemo(() => ({
+    ['--bcv2-hover-color' as any]: hoverHighlightColor || (isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.03)")
+  }), [hoverHighlightColor, isDark]);
 
   // Generate line background color based on state priority: clicked > search > hover
   const getLineBackgroundColor = useCallback((lineNumber: number): string => {
@@ -990,86 +997,94 @@ export function CodeBlock({
 
   // Search UI component
   function renderSearchUI() {
-    if (disableSearch || !isSearching) return null;
-
     return (
-      <div
-        className="flex items-center gap-2 bg-white dark:bg-[#111111] rounded-lg border border-zinc-200 dark:border-[#333333] p-1 h-8"
-        role="search"
-        aria-label="Code search"
-      >
-        <div className="relative">
-          <label htmlFor="code-search-input" className="sr-only">
-            Search within code block
-          </label>
-          <input
-            id="code-search-input"
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
-            className="w-40 px-2 py-1 text-sm bg-transparent text-zinc-800 dark:text-zinc-300 focus:outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
-            autoFocus
-            aria-describedby={searchResults.length > 0 ? "search-results-status" : undefined}
-          />
-          {searchQuery && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
-              {searchResults.length > 0 ? (
-                <span>{currentResultIndex + 1}/{searchResults.length}</span>
-              ) : (
-                <span>No results</span>
+      <AnimatePresence initial={false} mode="popLayout">
+        {!disableSearch && isSearching && (
+          <motion.div
+            key="code-search-ui"
+            variants={ANIMATIONS.searchToggle}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            role="search"
+            aria-label="Code search"
+            style={{ overflow: 'hidden', willChange: 'max-width' }}
+            className="flex-none flex items-center gap-2 bg-white dark:bg-[#111111] rounded-lg border border-zinc-200 dark:border-[#333333] p-1 h-8"
+          >
+            <div className="relative">
+              <label htmlFor="code-search-input" className="sr-only">
+                Search within code block
+              </label>
+              <input
+                id="code-search-input"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-40 px-2 py-1 text-sm bg-transparent text-zinc-800 dark:text-zinc-300 focus:outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                autoFocus
+                aria-describedby={searchResults.length > 0 ? "search-results-status" : undefined}
+              />
+              {searchQuery && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                  {searchResults.length > 0 ? (
+                    <span>{currentResultIndex + 1}/{searchResults.length}</span>
+                  ) : (
+                    <span>No results</span>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
 
-        {searchResults.length > 0 && (
-          <>
+            {searchResults.length > 0 && (
+              <>
+                <div className="h-4 w-[1px] bg-zinc-200 dark:bg-[#333333]" />
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={goToPreviousResult}
+                    className={cn(
+                      "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
+                      hasResultsAbove && "text-gray-600 dark:text-gray-400"
+                    )}
+                    title={hasResultsAbove ? "More results above" : "Previous result"}
+                  >
+                    <ArrowUp size={14} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={goToNextResult}
+                    className={cn(
+                      "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
+                      hasResultsBelow && "text-gray-600 dark:text-gray-400"
+                    )}
+                    title={hasResultsBelow ? "More results below" : "Next result"}
+                  >
+                    <ArrowDown size={14} />
+                  </Button>
+                </div>
+              </>
+            )}
+
             <div className="h-4 w-[1px] bg-zinc-200 dark:bg-[#333333]" />
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousResult}
-                className={cn(
-                  "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
-                  hasResultsAbove && "text-gray-600 dark:text-gray-400"
-                )}
-                title={hasResultsAbove ? "More results above" : "Previous result"}
-              >
-                <ArrowUp size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextResult}
-                className={cn(
-                  "h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
-                  hasResultsBelow && "text-gray-600 dark:text-gray-400"
-                )}
-                title={hasResultsBelow ? "More results below" : "Next result"}
-              >
-                <ArrowDown size={14} />
-              </Button>
-            </div>
-          </>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setIsSearching(false);
+                setSearchQuery("");
+                setSearchResults([]);
+                setHighlightedLines([]);
+              }}
+              className="h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+            >
+              <X size={14} />
+            </Button>
+          </motion.div>
         )}
-
-        <div className="h-4 w-[1px] bg-zinc-200 dark:bg-[#333333]" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            setIsSearching(false);
-            setSearchQuery("");
-            setSearchResults([]);
-            setHighlightedLines([]);
-          }}
-          className="h-6 w-6 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-        >
-          <X size={14} />
-        </Button>
-      </div>
+      </AnimatePresence>
     );
   }
 
@@ -1189,20 +1204,25 @@ export function CodeBlock({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-1.5 h-8">
-            {renderSearchUI()}
+          <motion.div className="flex items-center space-x-1.5 h-8">
+            <div className="w-8 h-8 flex items-center justify-center">
+              {!disableSearch && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSearching(true)}
+                  className={cn(
+                    "relative h-8 w-8 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/10",
+                    isSearching && "invisible pointer-events-none"
+                  )}
+                  title="Search (⌘/Ctrl + F)"
+                >
+                  <Search size={16} />
+                </Button>
+              )}
+            </div>
 
-            {!disableSearch && !isSearching && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearching(true)}
-                className="relative h-8 w-8 text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 rounded-md transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/10"
-                title="Search (⌘/Ctrl + F)"
-              >
-                <Search size={16} />
-              </Button>
-            )}
+            {renderSearchUI()}
 
             <Button
               variant="ghost"
@@ -1245,7 +1265,7 @@ export function CodeBlock({
                 </AnimatePresence>
               </Button>
             )}
-          </div>
+          </motion.div>
         </header>
         )}
 
@@ -1265,7 +1285,11 @@ export function CodeBlock({
                 )}
 
                 <div className="relative">
-                  <div className="p-4 overflow-y-auto" style={{ maxHeight }}>
+                  <div
+                    className="p-4 overflow-y-auto bcv2-codeblock"
+                    style={{ maxHeight, ...(hoverColorStyle as any) }}
+                    data-enable-line-hover={enableLineHover ? 'true' : 'false'}
+                  >
                     <SyntaxHighlighter
                       language={language.toLowerCase()}
                       style={isDark ? customTheme : customThemeLight}
@@ -1288,15 +1312,16 @@ export function CodeBlock({
                       wrapLines={true}
                       wrapLongLines={true}
                       lineProps={(lineNumber) => ({
+                        className: cn(
+                          "bcv2-code-line",
+                          highlightedLines.includes(lineNumber) && "bcv2-clicked",
+                          searchResults.includes(lineNumber) && "bcv2-search",
+                        ),
                         style: {
                           display: "block",
                           cursor: enableLineHighlight || enableLineHover ? "pointer" : "default",
-                          backgroundColor: getLineBackgroundColor(lineNumber),
-                          transition: enableLineHighlight ? "background-color 0.16s ease" : "none", // Only transition for click highlights, not hover
                         },
                         onClick: () => handleLineClick(lineNumber),
-                        onMouseEnter: () => handleLineMouseEnter(lineNumber),
-                        onMouseLeave: handleLineMouseLeave,
                       })}
                     >
                       {code}

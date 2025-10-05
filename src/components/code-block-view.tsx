@@ -8,6 +8,7 @@ import { PropsPanel } from "@/components/props-panel"
 import { cn } from "@/helpers/cn"
 import { useCallback, useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const themeClasses = {
   title: "text-gray-900 dark:text-neutral-200",
@@ -100,11 +101,22 @@ ORDER BY level, first_name, last_name;`,
 };
 
 export function CodeBlockView() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("search");
   const [searchDemoQuery, setSearchDemoQuery] = useState("return userData");
   const [searchDemoResults, setSearchDemoResults] = useState<number[]>([]);
-  const [scrollY, setScrollY] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize active tab from URL parameter
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('demo');
+    const validTabs = ['search', 'file-name', 'badges', 'hover', 'multi-file', 'diff', 'resizable', 'source-code'];
+    
+    if (tabFromUrl && validTabs.includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   // Theme detection and toggle
   useEffect(() => {
@@ -179,15 +191,13 @@ export function CodeBlockView() {
     setSearchDemoResults(results);
   }, []);
 
-  // Scroll effect for header
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('demo', tab);
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Keyboard navigation for tabs and props
   useEffect(() => {
@@ -211,7 +221,7 @@ export function CodeBlockView() {
       // Handle demo tabs (1-8)
       if (tabMap[e.key]) {
         e.preventDefault();
-        setActiveTab(tabMap[e.key]);
+        handleTabChange(tabMap[e.key]);
       }
 
       // Handle props panel toggle (Cmd/Ctrl + P)
@@ -241,16 +251,9 @@ export function CodeBlockView() {
   }, []);
 
   return (
-    <section id="feature-showcase" className="text-left mx-auto bg-white dark:bg-[rgb(11,11,11)] w-screen h-screen">
+    <section id="feature-showcase" className="text-left mx-auto bg-white dark:bg-[rgb(11,11,11)] w-screen min-h-screen">
       {/* Demo Top Navigation */}
-      <div 
-        className={cn(
-          "fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-[#333333] transition-all duration-300",
-          scrollY > 50 
-            ? "bg-white/70 dark:bg-[#0A0A0A]/70 backdrop-blur-md opacity-80" 
-            : "bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-sm opacity-100"
-        )}
-      >
+      <div className="border-b border-zinc-200 dark:border-[#333333] bg-white dark:bg-[#0A0A0A] pt-4">
         <div className="max-w-7xl px-4 py-2 flex-1 flex">
           <div className="mx-auto max-w-7xl flex items-center justify-center">
             <div className="flex items-center gap-3">
@@ -269,7 +272,7 @@ export function CodeBlockView() {
                 ].map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
+                    onClick={() => handleTabChange(tab.key)}
                     className={cn(
                       "px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1",
                       activeTab === tab.key
@@ -347,11 +350,11 @@ export function CodeBlockView() {
       </div>
       
       {/* Main Content */}
-      <div className="pt-20 h-full flex items-center justify-center">
-        <div className="w-4/6 pt-32 ">
+      <div className="flex items-center justify-center py-8">
+        <div className="w-4/6">
 
         {activeTab === "search" && (
-          <div className="space-y-4 my-32" data-demo-active="true">
+          <div className="space-y-4 my-8" data-demo-active="true">
             <p className={`text-sm ${themeClasses.description}`}>
               This demo shows the search functionality in action. The
               search box is pre-filled with &quot;return userData&quot;

@@ -8,6 +8,7 @@ import { PropsPanel } from "@/components/props-panel"
 import { cn } from "@/helpers/cn"
 import { useCallback, useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const themeClasses = {
   title: "text-gray-900 dark:text-neutral-200",
@@ -100,37 +101,48 @@ ORDER BY level, first_name, last_name;`,
 };
 
 export function CodeBlockView() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("search");
   const [searchDemoQuery, setSearchDemoQuery] = useState("return userData");
   const [searchDemoResults, setSearchDemoResults] = useState<number[]>([]);
-  const [scrollY, setScrollY] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize active tab from URL parameter
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('demo');
+    const validTabs = ['search', 'file-name', 'badges', 'hover', 'multi-file', 'diff', 'resizable', 'source-code'];
+    
+    if (tabFromUrl && validTabs.includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   // Theme detection and toggle
   useEffect(() => {
     const root = document.documentElement;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
-
+    
     // Check localStorage first, then system preference
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = media.matches;
-
+    
     let shouldBeDark = false;
     if (savedTheme === 'dark' || savedTheme === 'light') {
       shouldBeDark = savedTheme === 'dark';
     } else {
       shouldBeDark = systemPrefersDark;
     }
-
+    
     // Apply theme
     if (shouldBeDark) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-
+    
     setIsDarkMode(shouldBeDark);
-
+    
     const updateTheme = () => {
       const isDark = root.classList.contains('dark');
       setIsDarkMode(isDark);
@@ -150,7 +162,7 @@ export function CodeBlockView() {
     const root = document.documentElement;
     const isCurrentlyDark = root.classList.contains('dark');
     const newTheme = !isCurrentlyDark;
-
+    
     if (newTheme) {
       root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -158,7 +170,7 @@ export function CodeBlockView() {
       root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-
+    
     setIsDarkMode(newTheme);
   }, []);
 
@@ -179,15 +191,13 @@ export function CodeBlockView() {
     setSearchDemoResults(results);
   }, []);
 
-  // Scroll effect for header
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('demo', tab);
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Keyboard navigation for tabs and props
   useEffect(() => {
@@ -199,17 +209,19 @@ export function CodeBlockView() {
 
       const tabMap: { [key: string]: string } = {
         '1': 'search',
-        '2': 'hover',
-        '3': 'multi-file',
-        '4': 'diff',
-        '5': 'resizable',
-        '6': 'source-code'
+        '2': 'file-name',
+        '3': 'badges',
+        '4': 'hover',
+        '5': 'multi-file',
+        '6': 'diff',
+        '7': 'resizable',
+        '8': 'source-code'
       };
 
       // Handle demo tabs (1-8)
       if (tabMap[e.key]) {
         e.preventDefault();
-        setActiveTab(tabMap[e.key]);
+        handleTabChange(tabMap[e.key]);
       }
 
       // Handle props panel toggle (Cmd/Ctrl + P)
@@ -239,174 +251,361 @@ export function CodeBlockView() {
   }, []);
 
   return (
-    <section id="feature-showcase" className="text-left mx-auto bg-white dark:bg-[rgb(11,11,11)] w-screen h-screen">
-      {/* Main Content */}
-      {/* Main Content */}
-      <div className="pt-4 h-full">
-        <div className="w-full max-w-4xl mx-auto px-4">
-
-          {activeTab === "search" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                This demo shows the search functionality in action. The
-                search box is pre-filled with &quot;return userData&quot;
-                and the matching line is highlighted.
-              </p>
-              <CodeBlock
-                code={codeExamples.javascript}
-                language="javascript"
-                showLineNumbers
-                enableLineHighlight
-                onSearch={handleSearchDemo}
-                initialSearchQuery={searchDemoQuery}
-                initialSearchResults={searchDemoResults}
-              />
-              <div className={`text-sm ${themeClasses.description}`}>
-                Search query:{" "}
-                <span className={themeClasses.highlight}>{searchDemoQuery}</span>
-                <br />
-                Matching lines:{" "}
-                <span className={themeClasses.highlight}>
-                  {searchDemoResults.join(", ")}
-                </span>
+    <section id="feature-showcase" className="text-left mx-auto bg-white dark:bg-[rgb(11,11,11)] w-screen min-h-screen">
+      {/* Demo Top Navigation */}
+      <div className="border-b border-zinc-200 dark:border-[#333333] bg-white dark:bg-[#0A0A0A] pt-4">
+        <div className="max-w-7xl px-4 py-2 flex-1 flex">
+          <div className="mx-auto max-w-7xl flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              {/* Demo Tabs */}
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium text-[var(--foreground)]/60 mr-2">Demos:</span>
+                {[
+                  { key: "search", label: "Search", shortcut: "1" },
+                  { key: "file-name", label: "File Name", shortcut: "2" },
+                  { key: "badges", label: "Badges", shortcut: "3" },
+                  { key: "hover", label: "Hover", shortcut: "4" },
+                  { key: "multi-file", label: "Multi-File", shortcut: "5" },
+                  { key: "diff", label: "Diff", shortcut: "6" },
+                  { key: "resizable", label: "Resizable", shortcut: "7" },
+                  { key: "source-code", label: "Source Code", shortcut: "8" }
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => handleTabChange(tab.key)}
+                    className={cn(
+                      "px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1",
+                      activeTab === tab.key
+                        ? "bg-[var(--background)] text-[var(--foreground)] border border-[var(--foreground)]/20"
+                        : "text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5"
+                    )}
+                  >
+                    <span>{tab.label}</span>
+                    <kbd className="px-1 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded">
+                      {tab.shortcut}
+                    </kbd>
+                  </button>
+                ))}
               </div>
-
-              <PropShowcase
-                title="Search Functionality"
-                description="Demonstrates the search feature with pre-filled query and highlighted results."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "code",
-                    type: "string",
-                    description: "The code content to display"
-                  },
-                  {
-                    name: "language",
-                    type: "string",
-                    description: "Programming language for syntax highlighting"
-                  },
-                  {
-                    name: "showLineNumbers",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Shows line numbers on the left side"
-                  },
-                  {
-                    name: "enableLineHighlight",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables click-to-highlight line functionality"
-                  },
-                  {
-                    name: "onSearch",
-                    type: "(query: string, results: number[]) => void",
-                    description: "Callback function called when search is performed"
-                  },
-                  {
-                    name: "initialSearchQuery",
-                    type: "string",
-                    description: "Pre-fills the search input with this query"
-                  },
-                  {
-                    name: "initialSearchResults",
-                    type: "number[]",
-                    description: "Pre-highlights these line numbers as search results"
-                  }
-                ]}
-              />
-            </div>
-          )}
-
-
-
-          {activeTab === "hover" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                Hover over any line to see smooth highlighting. This feature works
-                alongside click highlighting and search results with proper precedence.
-              </p>
-              <CodeBlock
-                code={codeExamples.rust}
-                language="rust"
-                fileName="hover_demo.rs"
-                showLineNumbers
-                enableLineHover
-                enableLineHighlight
-                hoverHighlightColor="rgba(99, 102, 241, 0.1)"
-              />
-              <div className={`text-sm ${themeClasses.description}`}>
-                <span className={themeClasses.highlight}>Features:</span>
-                <br />
-                • Hover highlighting with smooth transitions (160ms)
-                <br />
-                • Custom hover color support
-                <br />
-                • Proper priority: Click &gt; Search &gt; Hover
-                <br />
-                • Performance optimized - only renders when enabled
+              
+              {/* Props Links */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-[var(--foreground)]/60 mr-1">Props:</span>
+                <button
+                  onClick={() => {
+                    const toggleButton = document.querySelector('[data-props-panel-toggle]');
+                    if (toggleButton) {
+                      (toggleButton as HTMLButtonElement).click();
+                    }
+                  }}
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
+                >
+                  <span>All Props</span>
+                  <kbd className="px-1 py-0.5 text-xs bg-[var(--foreground)]/5 border border-[var(--foreground)]/20 rounded">
+                    ⌘P
+                  </kbd>
+                </button>
+                <button
+                  onClick={() => {
+                    const currentDemo = document.querySelector('[data-demo-active="true"]');
+                    if (currentDemo) {
+                      const propShowcase = currentDemo.querySelector('[data-prop-showcase]');
+                      if (propShowcase) {
+                        propShowcase.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }
+                  }}
+                  className="px-2 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
+                >
+                  <span>Current Props</span>
+                  <kbd className="px-1 py-0.5 text-xs bg-[var(--foreground)]/5 border border-[var(--foreground)]/20 rounded">
+                    ⌘/
+                  </kbd>
+                </button>
               </div>
-
-              <PropShowcase
-                title="Line Hover Highlighting"
-                description="Enables smooth hover highlighting for better code exploration."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "code",
-                    type: "string",
-                    description: "The code content to display"
-                  },
-                  {
-                    name: "language",
-                    type: "string",
-                    description: "Programming language for syntax highlighting"
-                  },
-                  {
-                    name: "fileName",
-                    type: "string",
-                    description: "The name of the file to display in the header"
-                  },
-                  {
-                    name: "showLineNumbers",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Shows line numbers on the left side"
-                  },
-                  {
-                    name: "enableLineHover",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables hover highlighting on code lines"
-                  },
-                  {
-                    name: "enableLineHighlight",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables click-to-highlight line functionality"
-                  },
-                  {
-                    name: "hoverHighlightColor",
-                    type: "string",
-                    defaultValue: "rgba(99, 102, 241, 0.1)",
-                    description: "Custom color for hover highlighting (CSS color value)"
-                  }
-                ]}
-              />
+              
+              {/* Theme Toggle */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  className="px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1 text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 border border-[var(--foreground)]/20"
+                  title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+                >
+                  {isDarkMode ? (
+                    <>
+                      <Sun size={14} />
+                      <span>Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={14} />
+                      <span>Dark</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex items-center justify-center py-8">
+        <div className="w-4/6">
 
-          {activeTab === "multi-file" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                Switch between multiple related files with a tabbed interface.
-              </p>
-              <MultiFileCodeBlock
-                files={[
-                  {
-                    name: "app.tsx",
-                    language: "typescript",
-                    code: `import { useState } from 'react';
+        {activeTab === "search" && (
+          <div className="space-y-4 my-8" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              This demo shows the search functionality in action. The
+              search box is pre-filled with &quot;return userData&quot;
+              and the matching line is highlighted.
+            </p>
+            <CodeBlock
+              code={codeExamples.javascript}
+              language="javascript"
+              showLineNumbers
+              enableLineHighlight
+              onSearch={handleSearchDemo}
+              initialSearchQuery={searchDemoQuery}
+              initialSearchResults={searchDemoResults}
+            />
+            <div className={`text-sm ${themeClasses.description}`}>
+              Search query:{" "}
+              <span className={themeClasses.highlight}>{searchDemoQuery}</span>
+              <br />
+              Matching lines:{" "}
+              <span className={themeClasses.highlight}>
+                {searchDemoResults.join(", ")}
+              </span>
+            </div>
+            
+            <PropShowcase
+              title="Search Functionality"
+              description="Demonstrates the search feature with pre-filled query and highlighted results."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The code content to display"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers on the left side"
+                },
+                {
+                  name: "enableLineHighlight",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables click-to-highlight line functionality"
+                },
+                {
+                  name: "onSearch",
+                  type: "(query: string, results: number[]) => void",
+                  description: "Callback function called when search is performed"
+                },
+                {
+                  name: "initialSearchQuery",
+                  type: "string",
+                  description: "Pre-fills the search input with this query"
+                },
+                {
+                  name: "initialSearchResults",
+                  type: "number[]",
+                  description: "Pre-highlights these line numbers as search results"
+                }
+              ]}
+            />
+          </div>
+        )}
+
+        {activeTab === "file-name" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Display a file name at the top of the code block for better
+              context.
+            </p>
+            <CodeBlock
+              code={codeExamples.rust}
+              language="rust"
+              fileName="word_frequency.rs"
+              showLineNumbers
+            />
+            
+            <PropShowcase
+              title="File Name Display"
+              description="Shows how to display a file name at the top of the code block."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The code content to display"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "fileName",
+                  type: "string",
+                  description: "The name of the file to display in the header"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers on the left side"
+                }
+              ]}
+            />
+          </div>
+        )}
+
+        {activeTab === "badges" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Add badges to categorize or provide additional context to
+              your code blocks.
+            </p>
+            <CodeBlock
+              code={codeExamples.sql}
+              language="sql"
+              badges={[
+                { text: "Advanced", variant: "primary" },
+                { text: "Recursive", variant: "secondary" },
+
+                { text: "Experimental", variant: "danger" },
+              ]}
+              showLineNumbers
+            />
+            
+            <PropShowcase
+              title="Badge System"
+              description="Demonstrates how to add categorized badges to code blocks."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The code content to display"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "badges",
+                  type: "Array<{ text: string; variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' }>",
+                  description: "Array of badge objects with text and color variant"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers on the left side"
+                }
+              ]}
+            />
+          </div>
+        )}
+
+        {activeTab === "hover" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Hover over any line to see smooth highlighting. This feature works
+              alongside click highlighting and search results with proper precedence.
+            </p>
+            <CodeBlock
+              code={codeExamples.rust}
+              language="rust"
+              fileName="hover_demo.rs"
+              showLineNumbers
+              enableLineHover
+              enableLineHighlight
+              hoverHighlightColor="rgba(99, 102, 241, 0.1)"
+            />
+            <div className={`text-sm ${themeClasses.description}`}>
+              <span className={themeClasses.highlight}>Features:</span>
+              <br />
+              • Hover highlighting with smooth transitions (160ms)
+              <br />
+              • Custom hover color support
+              <br />
+              • Proper priority: Click &gt; Search &gt; Hover
+              <br />
+              • Performance optimized - only renders when enabled
+            </div>
+            
+            <PropShowcase
+              title="Line Hover Highlighting"
+              description="Enables smooth hover highlighting for better code exploration."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The code content to display"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "fileName",
+                  type: "string",
+                  description: "The name of the file to display in the header"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers on the left side"
+                },
+                {
+                  name: "enableLineHover",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables hover highlighting on code lines"
+                },
+                {
+                  name: "enableLineHighlight",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables click-to-highlight line functionality"
+                },
+                {
+                  name: "hoverHighlightColor",
+                  type: "string",
+                  defaultValue: "rgba(99, 102, 241, 0.1)",
+                  description: "Custom color for hover highlighting (CSS color value)"
+                }
+              ]}
+            />
+          </div>
+        )}
+
+        {activeTab === "multi-file" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Switch between multiple related files with a tabbed interface.
+            </p>
+            <MultiFileCodeBlock
+              files={[
+                {
+                  name: "app.tsx",
+                  language: "typescript",
+                  code: `import { useState } from 'react';
 import { UserProfile } from './user-profile';
 import { Settings } from './settings';
 
@@ -419,12 +618,12 @@ export function App() {
     </div>
   );
 }`,
-                    badges: [{ text: "Component", variant: "primary" }],
-                  },
-                  {
-                    name: "user-profile.tsx",
-                    language: "typescript",
-                    code: `export function UserProfile() {
+                  badges: [{ text: "Component", variant: "primary" }],
+                },
+                {
+                  name: "user-profile.tsx",
+                  language: "typescript",
+                  code: `export function UserProfile() {
   return (
     <div className="space-y-4">
       <h1>User Profile</h1>
@@ -435,12 +634,12 @@ export function App() {
     </div>
   );
 }`,
-                    badges: [{ text: "Component", variant: "secondary" }],
-                  },
-                  {
-                    name: "settings.tsx",
-                    language: "typescript",
-                    code: `export function Settings() {
+                  badges: [{ text: "Component", variant: "secondary" }],
+                },
+                {
+                  name: "settings.tsx",
+                  language: "typescript",
+                  code: `export function Settings() {
   return (
     <div className="space-y-4">
       <h1>Settings</h1>
@@ -453,56 +652,56 @@ export function App() {
     </div>
   );
 }`,
-                    badges: [{ text: "Component", variant: "secondary" }],
-                  },
-                ]}
-                showLineNumbers
-                enableLineHighlight
-              />
+                  badges: [{ text: "Component", variant: "secondary" }],
+                },
+              ]}
+              showLineNumbers
+              enableLineHighlight
+            />
+            
+            <PropShowcase
+              title="Multi-File Code Block"
+              description="Displays multiple code files with a tabbed interface for easy navigation."
+              data-prop-showcase
+              props={[
+                {
+                  name: "files",
+                  type: "Array<{ name: string; language: string; code: string; badges?: Array<{ text: string; variant: string }> }>",
+                  description: "Array of file objects with name, language, code content, and optional badges"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers for each file"
+                },
+                {
+                  name: "enableLineHighlight",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables line highlighting functionality"
+                },
+                {
+                  name: "enableLineHover",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables hover highlighting on lines"
+                }
+              ]}
+            />
+          </div>
+        )}
 
-              <PropShowcase
-                title="Multi-File Code Block"
-                description="Displays multiple code files with a tabbed interface for easy navigation."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "files",
-                    type: "Array<{ name: string; language: string; code: string; badges?: Array<{ text: string; variant: string }> }>",
-                    description: "Array of file objects with name, language, code content, and optional badges"
-                  },
-                  {
-                    name: "showLineNumbers",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Shows line numbers for each file"
-                  },
-                  {
-                    name: "enableLineHighlight",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables line highlighting functionality"
-                  },
-                  {
-                    name: "enableLineHover",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables hover highlighting on lines"
-                  }
-                ]}
-              />
-            </div>
-          )}
-
-          {activeTab === "diff" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                View code changes with additions and deletions highlighted.
-                Toggle between unified and split views.
-              </p>
-              <DiffCodeBlock
-                fileName="user-service.ts"
-                language="typescript"
-                oldCode={`import { User } from './types';
+        {activeTab === "diff" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              View code changes with additions and deletions highlighted.
+              Toggle between unified and split views.
+            </p>
+            <DiffCodeBlock
+              fileName="user-service.ts"
+              language="typescript"
+              oldCode={`import { User } from './types';
 import { database } from './database';
 
 // User service for managing user operations
@@ -548,7 +747,7 @@ export class UserService {
     return true;
   }
 }`}
-                newCode={`import { User } from './types';
+              newCode={`import { User } from './types';
 import { database } from './database';
 import { Logger } from './logger';
 
@@ -600,52 +799,55 @@ export class UserService {
     return true;
   }
 }`}
-              />
+            />
+            
+            <PropShowcase
+              title="Diff Code Block"
+              description="Displays code differences with unified or split view and optional diff highlighting."
+              data-prop-showcase
+              props={[
+                {
+                  name: "fileName",
+                  type: "string",
+                  description: "The name of the file being compared"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "oldCode",
+                  type: "string",
+                  description: "The original/old version of the code"
+                },
+                {
+                  name: "newCode",
+                  type: "string",
+                  description: "The new/modified version of the code"
+                }
+              ]}
+            />
+          </div>
+        )}
 
-              <PropShowcase
-                title="Diff Code Block"
-                description="Displays code differences with unified or split view and optional diff highlighting."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "fileName",
-                    type: "string",
-                    description: "The name of the file being compared"
-                  },
-                  {
-                    name: "language",
-                    type: "string",
-                    description: "Programming language for syntax highlighting"
-                  },
-                  {
-                    name: "oldCode",
-                    type: "string",
-                    description: "The original/old version of the code"
-                  },
-                  {
-                    name: "newCode",
-                    type: "string",
-                    description: "The new/modified version of the code"
-                  }
-                ]}
-              />
-            </div>
-          )}
+        {activeTab === "resizable" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              Resize the code block by dragging the corner handle. The dimensions will persist after page refresh.
+            </p>
+            <CodeBlock
+              code={`// Resizable Code Block Demo
+import React, { useState, useEffect } from 'react';
 
-          {activeTab === "resizable" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                Resize the code block by dragging the corner handle. The dimensions will persist after page refresh.
-              </p>
-              <CodeBlock
-                code={`type TProps ={
+interface User {
   id: number;
   name: string;
   email: string;
   avatar?: string;
 }
 
-export function Userprofile({id,name,email,avatar}):TProps {}
+const UserProfile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -729,113 +931,113 @@ export function Userprofile({id,name,email,avatar}):TProps {}
 };
 
 export default UserProfile;`}
-                language="typescript"
-                fileName="UserProfile.tsx"
-                badges={[
-                  { text: "React", variant: "primary" },
-                  { text: "TypeScript", variant: "secondary" },
-                  { text: "Resizable", variant: "success" }
-                ]}
-                showLineNumbers
-                enableLineHighlight
-                enableLineHover
-                resizable
-                resizeStorageKey="demo-resizable-codeblock"
-                showIcon
-              />
-              <div className={`text-sm ${themeClasses.description}`}>
-                <span className={themeClasses.highlight}>Features:</span>
-                <br />
-                • Drag the bottom-right corner to resize horizontally and vertically
-                <br />
-                • Minimum size: 200px width, 150px height
-                <br />
-                • Dimensions persist in localStorage after page refresh
-                <br />
-                • Smooth resize with visual feedback
-                <br />
-                • Customizable storage key for multiple resizable blocks
-                <br />
-                • Search functionality can be disabled with <code>disableSearch</code> prop
-                <br />
-                • Copy functionality can be disabled with <code>disableCopy</code> prop
-                <br />
-                • Entire top bar can be disabled with <code>disableTopBar</code> prop
-              </div>
-
-              <PropShowcase
-                title="Resizable Code Block"
-                description="Allows users to resize the code block by dragging the corner handle with persistent dimensions."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "code",
-                    type: "string",
-                    description: "The code content to display"
-                  },
-                  {
-                    name: "language",
-                    type: "string",
-                    description: "Programming language for syntax highlighting"
-                  },
-                  {
-                    name: "fileName",
-                    type: "string",
-                    description: "The name of the file to display in the header"
-                  },
-                  {
-                    name: "badges",
-                    type: "Array<{ text: string; variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' }>",
-                    description: "Array of badge objects with text and color variant"
-                  },
-                  {
-                    name: "showLineNumbers",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Shows line numbers on the left side"
-                  },
-                  {
-                    name: "enableLineHighlight",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables click-to-highlight line functionality"
-                  },
-                  {
-                    name: "enableLineHover",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables hover highlighting on lines"
-                  },
-                  {
-                    name: "resizable",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Enables resizing functionality with corner handles"
-                  },
-                  {
-                    name: "resizeStorageKey",
-                    type: "string",
-                    defaultValue: "'codeblock-resize'",
-                    description: "localStorage key for persisting resize dimensions"
-                  },
-                  {
-                    name: "showIcon",
-                    type: "boolean",
-                    defaultValue: "false",
-                    description: "Shows the language icon in the header"
-                  }
-                ]}
-              />
+              language="typescript"
+              fileName="UserProfile.tsx"
+              badges={[
+                { text: "React", variant: "primary" },
+                { text: "TypeScript", variant: "secondary" },
+                { text: "Resizable", variant: "success" }
+              ]}
+              showLineNumbers
+              enableLineHighlight
+              enableLineHover
+              resizable
+              resizeStorageKey="demo-resizable-codeblock"
+              showIcon
+            />
+            <div className={`text-sm ${themeClasses.description}`}>
+              <span className={themeClasses.highlight}>Features:</span>
+              <br />
+              • Drag the bottom-right corner to resize horizontally and vertically
+              <br />
+              • Minimum size: 200px width, 150px height
+              <br />
+              • Dimensions persist in localStorage after page refresh
+              <br />
+              • Smooth resize with visual feedback
+              <br />
+              • Customizable storage key for multiple resizable blocks
+              <br />
+              • Search functionality can be disabled with <code>disableSearch</code> prop
+              <br />
+              • Copy functionality can be disabled with <code>disableCopy</code> prop
+              <br />
+              • Entire top bar can be disabled with <code>disableTopBar</code> prop
             </div>
-          )}
+            
+            <PropShowcase
+              title="Resizable Code Block"
+              description="Allows users to resize the code block by dragging the corner handle with persistent dimensions."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The code content to display"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "fileName",
+                  type: "string",
+                  description: "The name of the file to display in the header"
+                },
+                {
+                  name: "badges",
+                  type: "Array<{ text: string; variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' }>",
+                  description: "Array of badge objects with text and color variant"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows line numbers on the left side"
+                },
+                {
+                  name: "enableLineHighlight",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables click-to-highlight line functionality"
+                },
+                {
+                  name: "enableLineHover",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables hover highlighting on lines"
+                },
+                {
+                  name: "resizable",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Enables resizing functionality with corner handles"
+                },
+                {
+                  name: "resizeStorageKey",
+                  type: "string",
+                  defaultValue: "'codeblock-resize'",
+                  description: "localStorage key for persisting resize dimensions"
+                },
+                {
+                  name: "showIcon",
+                  type: "boolean",
+                  defaultValue: "false",
+                  description: "Shows the language icon in the header"
+                }
+              ]}
+            />
+          </div>
+        )}
 
-          {activeTab === "source-code" && (
-            <div className="space-y-4" data-demo-active="true">
-              <p className={`text-sm ${themeClasses.description}`}>
-                View the complete source code of the CodeBlock component. This demonstrates the component itself displaying its own implementation.
-              </p>
-              <CodeBlock
-                code={`/**
+        {activeTab === "source-code" && (
+          <div className="space-y-4" data-demo-active="true">
+            <p className={`text-sm ${themeClasses.description}`}>
+              View the complete source code of the CodeBlock component. This demonstrates the component itself displaying its own implementation.
+            </p>
+            <CodeBlock
+              code={`/**
  * Beautiful Code Block Component
  * 
  * A feature-rich, customizable code display component for React/Next.js applications
@@ -947,102 +1149,102 @@ function useIsDarkMode() {
 // types, badge utilities, and the main CodeBlock component with all its props and functionality.
 
 export { CodeBlock };`}
-                language="typescript"
-                fileName="code-block.tsx"
-                badges={[
-                  { text: "TypeScript", variant: "primary" },
-                  { text: "React", variant: "secondary" },
-                  { text: "Component", variant: "success" },
-                  { text: "Source Code", variant: "warning" }
-                ]}
-                showLineNumbers
-                enableLineHighlight
-                showIcon
-                maxHeight="600px"
-              />
-              <div className={`text-sm ${themeClasses.description}`}>
-                <span className={themeClasses.highlight}>Complete Implementation:</span>
-                <br />
-                • Full TypeScript component with comprehensive prop types
-                <br />
-                • Syntax highlighting with custom dark/light themes
-                <br />
-                • Interactive search with keyboard shortcuts
-                <br />
-                • Line highlighting and hover effects
-                <br />
-                • Copy to clipboard functionality
-                <br />
-                • Resizable with persistent dimensions
-                <br />
-                • Custom badge system with auto-scroll
-                <br />
-                • Accessibility features and keyboard navigation
-                <br />
-                • Framer Motion animations
-                <br />
-                • Theme-agnostic design (light/dark mode support)
-              </div>
-
-              <PropShowcase
-                title="Complete Component Source"
-                description="The entire CodeBlock component source code showcasing all features and implementation details."
-                data-prop-showcase
-                props={[
-                  {
-                    name: "code",
-                    type: "string",
-                    description: "The complete source code of the CodeBlock component"
-                  },
-                  {
-                    name: "language",
-                    type: "string",
-                    defaultValue: "'typescript'",
-                    description: "Programming language for syntax highlighting"
-                  },
-                  {
-                    name: "fileName",
-                    type: "string",
-                    defaultValue: "'code-block.tsx'",
-                    description: "Component file name displayed in header"
-                  },
-                  {
-                    name: "badges",
-                    type: "Array<Badge>",
-                    description: "Technology and feature badges"
-                  },
-                  {
-                    name: "showLineNumbers",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Displays line numbers for easy reference"
-                  },
-                  {
-                    name: "enableLineHighlight",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Allows clicking lines to highlight them"
-                  },
-                  {
-                    name: "showIcon",
-                    type: "boolean",
-                    defaultValue: "true",
-                    description: "Shows TypeScript language icon"
-                  },
-                  {
-                    name: "maxHeight",
-                    type: "string",
-                    defaultValue: "'600px'",
-                    description: "Maximum height before scrolling"
-                  }
-                ]}
-              />
+              language="typescript"
+              fileName="code-block.tsx"
+              badges={[
+                { text: "TypeScript", variant: "primary" },
+                { text: "React", variant: "secondary" },
+                { text: "Component", variant: "success" },
+                { text: "Source Code", variant: "warning" }
+              ]}
+              showLineNumbers
+              enableLineHighlight
+              showIcon
+              maxHeight="600px"
+            />
+            <div className={`text-sm ${themeClasses.description}`}>
+              <span className={themeClasses.highlight}>Complete Implementation:</span>
+              <br />
+              • Full TypeScript component with comprehensive prop types
+              <br />
+              • Syntax highlighting with custom dark/light themes
+              <br />
+              • Interactive search with keyboard shortcuts
+              <br />
+              • Line highlighting and hover effects
+              <br />
+              • Copy to clipboard functionality
+              <br />
+              • Resizable with persistent dimensions
+              <br />
+              • Custom badge system with auto-scroll
+              <br />
+              • Accessibility features and keyboard navigation
+              <br />
+              • Framer Motion animations
+              <br />
+              • Theme-agnostic design (light/dark mode support)
             </div>
-          )}
+            
+            <PropShowcase
+              title="Complete Component Source"
+              description="The entire CodeBlock component source code showcasing all features and implementation details."
+              data-prop-showcase
+              props={[
+                {
+                  name: "code",
+                  type: "string",
+                  description: "The complete source code of the CodeBlock component"
+                },
+                {
+                  name: "language",
+                  type: "string",
+                  defaultValue: "'typescript'",
+                  description: "Programming language for syntax highlighting"
+                },
+                {
+                  name: "fileName",
+                  type: "string",
+                  defaultValue: "'code-block.tsx'",
+                  description: "Component file name displayed in header"
+                },
+                {
+                  name: "badges",
+                  type: "Array<Badge>",
+                  description: "Technology and feature badges"
+                },
+                {
+                  name: "showLineNumbers",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Displays line numbers for easy reference"
+                },
+                {
+                  name: "enableLineHighlight",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Allows clicking lines to highlight them"
+                },
+                {
+                  name: "showIcon",
+                  type: "boolean",
+                  defaultValue: "true",
+                  description: "Shows TypeScript language icon"
+                },
+                {
+                  name: "maxHeight",
+                  type: "string",
+                  defaultValue: "'600px'",
+                  description: "Maximum height before scrolling"
+                }
+              ]}
+            />
+          </div>
+        )}
 
         </div>
       </div>
-
+      
       {/* Props Panel */}
       <PropsPanel />
     </section>
